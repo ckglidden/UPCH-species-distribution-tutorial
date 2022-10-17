@@ -41,6 +41,9 @@ Maybe include a screengrab of MAPBIOMAS?
 cleaning code chunk - maybe take average of LULC over a ten year period for simplicty sake?
 
 ```
+```
+vif or correlation analysis to remove highly correlated variables
+```
 
 ### 3. Machine-learning based SDMs 
 > short blurb on different algorithms that have been used and why we are using one specific one for the workshop (RF?)
