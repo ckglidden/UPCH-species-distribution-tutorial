@@ -3,14 +3,20 @@
 > This github page includes a tutorial of how to model the distribution of XX species using MAPBIOMAS land-use/land-cover data.
 
 
-### 1. Uploading point data to GEE :mosquito:
+### 1. Presence-background species distribution models
+> short lesson on occurrence points versus bkg, include links for explainers and map figure to help us explain??
+
+#### Uploading point data to GEE :mosquito:
 
 a. download occurrence dataset (XYZ - csv file available on this github page)
 
 b. upload occurrence dataset as an assett
 
 
-### 2. Downloading MAPBIOMAS data :earth_americas:
+### 2. Environmental covariate data
+> short blurb on how environmental data is used to predict the distribution of focal species
+
+#### Downloading MAPBIOMAS data :earth_americas:
 
 Maybe include a screengrab of MAPBIOMAS?
 
@@ -21,7 +27,7 @@ Maybe include a screengrab of MAPBIOMAS?
 3. navigate to Caroline's GEE code - in this code you will upload the assett, specifiy the output file & directory, and choose the LULC and years you want to download data for
 
 
-### 3. Clean MAPBIOMAS data :broom:
+#### Clean MAPBIOMAS data :broom:
 
 ```
 
@@ -29,3 +35,53 @@ cleaning code chunk - maybe take average of LULC over a ten year period for simp
 
 ```
 
+### 3. Machine-learning based SDM 
+> short blurb on different algorithms that have been used and why we are using one specific one for the workshop (RF?)
+
+
+#### Model tuning & testing using spatial cross-validation :white_check_mark:
+
+```
+code chunk to demonstrate how points are clustered for spatial CV
+```
+
+couple sentences about what needs to be tuned for RF, how to account for unbalanced data, and different metrics for testing the data?
+
+```
+for loop with model tuning & testing for each iteration??
+```
+
+#### Training of final model :woman_technologist:
+
+```
+code chunk for final model w/ all of the data - should we incorporate uncertainty around variable importance at this point?
+``` 
+
+#### Model interpretation :bar_chart: :chart_with_upwards_trend:
+
+##### Variable importance
+> blurb about different variable importance (permutation importance, shapley, etc, etc), choose on for workshop
+
+include variable importance plot?
+
+```
+code to quantify variable importance and plot it
+```
+
+##### PDPs
+> blurb defining pdps
+
+PDP plot?
+
+```
+code for generating pdp plots
+```
+
+##### Model predictions
+> blurb about how to create predictions and interpretation of predictions
+
+distribution map?
+
+```
+code for generating distribution map based on geoTIFFs of prediction variables? might need to create it for a small area, otherwise files might be too big for github
+```
