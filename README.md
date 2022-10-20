@@ -13,7 +13,7 @@
 ### 1. Presence-background species distribution models
 > For this model we are using _C. torquatus_ as a focal species, and all other passerine birds as background species. The background species helps to  us to understand the difference between the focal species and the average landscape over which songbirds are sampled. Point data was downloaded from GBIF using the "download_gbif_points.R" code. Note: there are many ways that SDMs can be modeled when lacking true absences of the focal species.
 
-![Figure 1. Distribution of points](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/c_torquatus_sdm_point_distribution.tiff)
+![Figure 1. Distribution of points](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/c_torquatus_sdm_point_distribution.png)
 
 #### Uploading point data to GEE :mosquito:
 
