@@ -22,7 +22,8 @@
 Step 1. Download occurrence dataset from the data folder: [final_passerine_data_Oct20_2022.csv](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/final_passerine_dataset_Oct20_2022.csv)
 
 Step 2. Upload occurrence dataset as a GEE feature collections
-
+(Figure 2. Uploading csv as a feature collection)[https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/GEE_csv_asset.png]
+**Figure 2.** Navigation for uploading csv as a feature collection.
 
 ### 2. Environmental covariate data
 > short blurb on how environmental data is used to predict the distribution of focal species
@@ -31,13 +32,15 @@ Step 2. Upload occurrence dataset as a GEE feature collections
 
 Maybe include a screengrab of MAPBIOMAS?
 
-Step 3. Explore the [MAPBIOMAS website](https://plataforma.panamazonia.mapbiomas.org/)
+Step 4. Explore the [MAPBIOMAS website](https://plataforma.panamazonia.mapbiomas.org/)
 
-Step 4. Identify LULC categories of interest using the [MAPBIOMAS legend](https://mapbiomas.org/en/legend-codes) (make sure it is the correct legend for the MAPBIOMAS assett)
+Step 5. Identify LULC categories / datasets of interest using the [MAPBIOMAS legend](https://mapbiomas.org/en/legend-codes) (make sure it is the correct legend for the MAPBIOMAS assett)
 
-Step 5. navigate to Caroline's GEE code -- we will walk through this code as a group, it will let you download LULC data per year for each point in the feature collection.
+Step 6. Explore [MAPBIOMAS GEE code](https://github.com/mapbiomas-brazil/user-toolkit). Many of the functions you need to working with MAPBIOMAS data has pre-written code, you just need to adapt it to your dataset.
 
-Step 6. Skip actually running the GEE code for now (or try running it in the background) and download this csv of pre-downloaded data (include link) from the data folder.
+Step 6. Navigate to [Caroline's GEE code](https://code.earthengine.google.com/4e4104e7bb0bac0ab475e34d7681295e)  -- we will walk through this code as a group, it will let you download LULC data per year for each point in the feature collection.
+
+Step 7. Skip actually running the GEE code for now (or try running it in the background) and download this csv of pre-downloaded data (include link) from the data folder.
 
 
 #### Clean MAPBIOMAS data :broom:
