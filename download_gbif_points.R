@@ -1,16 +1,25 @@
 setwd("~/Documents/GitHub/UPCH-species-distribution-tutorial")
 
-library(sf); library(rgbif); library(dplyr)
+library(sf); library(rgbif); library(dplyr); library(raster)
 
+<<<<<<< HEAD
+#read in IUCN species names for songbird in Peru
+iucn_species <- read_sf("iucn_peruvian_passerines") #this shape file was downloaded from ICUN redlist site
+=======
 #read in IUCN species names for bats in Peru
 iucn_species <- read_sf("iucn_peruvian_bats") #this shape file was downloaded from ICUN redlist site
+>>>>>>> parent of 7e325d9 (different vertebrate occ point options)
 names(iucn_species)[3] <- "scientificName" #needs to match gbif to work
 
 #create a dataframe with the scientific name, and all the occurrences of the sandfly
 latlong <- data.frame()
 
 #for loop to get lat long
+<<<<<<< HEAD
+for (i in 1:1379){
+=======
 for (i in 1:299){
+>>>>>>> parent of 7e325d9 (different vertebrate occ point options)
   tryCatch({
     b <- data.frame(occ_search(scientificName = iucn_species$scientificName[i])$data)
     #filter so that only the recorded occurrences are in the dataframe
@@ -42,9 +51,16 @@ pnts_mdd <- pnts_mdd %>%
 
 pnts_mdd <- st_drop_geometry(pnts_mdd) 
 
-write.csv(pnts_mdd,"bat_occ_pts_mdd.csv", row.names = TRUE)
+<<<<<<< HEAD
+write.csv(pnts_mdd,"passerine_occ_pts_mdd.csv", row.names = TRUE)
 
-###plot test
+#-------------------------------------------------------------#
+#visually check resolution of species                         #
+#-------------------------------------------------------------#
+=======
+write.csv(pnts_mdd,"bat_occ_pts_mdd.csv", row.names = TRUE)
+>>>>>>> parent of 7e325d9 (different vertebrate occ point options)
+
 # Remove plot axis
 library(ggplot2)
 
@@ -58,19 +74,42 @@ names <- unique(pnts_mdd$scientificName) #look at distribution by species
 # Plot "Chiroderma villosum"
 ggplot() +
   geom_sf(data=mdd, color="#2D3E50", fill="lightgrey", size=.15, show.legend = FALSE) +
+<<<<<<< HEAD
+  geom_point(data = subset(pnts_mdd, scientificName == names[15]), 
+=======
   geom_point(data = subset(pnts_mdd, scientificName == names[79]), 
+>>>>>>> parent of 7e325d9 (different vertebrate occ point options)
              aes(x = lon, y = lat), alpha = 0.5) +
   theme_minimal() +
   no_axis
 
+<<<<<<< HEAD
+#candidate species
+#"Poecilotriccus albifacies" - 478, 59 unique points
+#"Corythopis torquatus" - 244, 65 unique points
+
+#-------------------------------------------------------------#
+#double check how many unique points in a 100m raster         #
+#-------------------------------------------------------------#
+
+#make raster with 100m grid cells
+st_bbox(mdd)
+r <- raster(xmn = -72.428739, xmx = -68.652279, ymn = -13.341717, ymx = -9.873393, res = 0.001)
+
+#one point per grid cell -- 245 unique grid points distributed throughout BR
+s <- dismo::gridSample(pnts_mdd[pnts_mdd$scientificName == "Corythopis torquatus", 4:5], r, n=1) #65 obs for focal species
+
+s0 <- dismo::gridSample(pnts_mdd[pnts_mdd$scientificName != "Corythopis torquatus", 4:5], r, n=1) #178 obs for background species
+
+#now create final thinned dataset
+=======
 #list to re-check
 #"Platyrrhinus brachycephalus"
 #"Mesophylla macconnelli"
 #"Lonchophylla thomasi"
 #"Uroderma magnirostrum"
-
-ggsave("glabrata_all_aquatic_pts_map.tiff", glabrata_points, dpi = 600)
-
+>>>>>>> parent of 7e325d9 (different vertebrate occ point options)
 
 
-#double check how many unique points in a 1km raster grid...or 30m?
+
+
