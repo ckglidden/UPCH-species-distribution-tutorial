@@ -17,10 +17,11 @@
 **Figure 1.** Distribution of the focal species (_C. torquatus_) and background species thinned to 100m grid cells. The number of background points was further reduced by using a background point probability mask and sampling 2 * the no. of occurrence points (65 _C. torquatus_ points; 130 bkg points). The code used to create the probability surface and sample the background points is in the ["download_gbif_points.R" code](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/download_gbif_points.R). An example of using a background mask to sample background points can be found in [Moyes et al. 2016](https://parasitesandvectors.biomedcentral.com/articles/10.1186/s13071-016-1527-0).
 
 #### Uploading point data to GEE :mosquito:
+>Once you have your occurrence data downloaded, you should upload it to GEE so that you can download geospatial covariates per point. Make sure the dataframe has numerical longitude (x) and latitude (y) coordinates (in decimal degrees) as separate columns. I also add a row identifier in case I need to match the points to other datasets or bind multiple datasets after downloading geospatial data. 
 
-a. download occurrence dataset: [final_passerine_data_Oct20_2022.csv](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/final_passerine_dataset_Oct20_2022.csv)
+Step 1. Download occurrence dataset from the data folder: [final_passerine_data_Oct20_2022.csv](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/final_passerine_dataset_Oct20_2022.csv)
 
-b. upload occurrence dataset as an assett
+Step 2. Upload occurrence dataset as a GEE feature collections
 
 
 ### 2. Environmental covariate data
@@ -30,11 +31,13 @@ b. upload occurrence dataset as an assett
 
 Maybe include a screengrab of MAPBIOMAS?
 
-1. Explore the [MAPBIOMAS website](https://plataforma.panamazonia.mapbiomas.org/)
+Step 3. Explore the [MAPBIOMAS website](https://plataforma.panamazonia.mapbiomas.org/)
 
-2. Identify LULC categories of interest using the [MAPBIOMAS legend](https://mapbiomas.org/en/legend-codes) (make sure it is the correct legend for the MAPBIOMAS assett)
+Step 4. Identify LULC categories of interest using the [MAPBIOMAS legend](https://mapbiomas.org/en/legend-codes) (make sure it is the correct legend for the MAPBIOMAS assett)
 
-3. navigate to Caroline's GEE code - in this code you will upload the assett, specifiy the output file & directory, and choose the LULC and years you want to download data for
+Step 5. navigate to Caroline's GEE code -- we will walk through this code as a group, it will let you download LULC data per year for each point in the feature collection.
+
+Step 6. Skip actually running the GEE code for now (or try running it in the background) and download this csv of pre-downloaded data (include link) from the data folder.
 
 
 #### Clean MAPBIOMAS data :broom:
