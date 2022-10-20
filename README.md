@@ -19,9 +19,9 @@
 #### Uploading point data to GEE :mosquito:
 >Once you have your occurrence data downloaded, you should upload it to GEE so that you can download geospatial covariates per point. Make sure the dataframe has numerical longitude (x) and latitude (y) coordinates (in decimal degrees) as separate columns. I also add a row identifier in case I need to match the points to other datasets or bind multiple datasets after downloading geospatial data. 
 
-Step 1. Download occurrence dataset from the data folder: [final_passerine_data_Oct20_2022.csv](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/final_passerine_dataset_Oct20_2022.csv)
+_Step 1._ Download occurrence dataset from the data folder: [final_passerine_data_Oct20_2022.csv](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/final_passerine_dataset_Oct20_2022.csv)
 
-Step 2. Upload occurrence dataset as a GEE feature collections.</br>
+_Step 2._ Upload occurrence dataset as a GEE feature collections.</br>
 <img src=https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/GEE_csv_asset.png width="250" height="380"></br>
 **Figure 2.** Navigation for uploading csv as a feature collection.
 
@@ -32,15 +32,15 @@ Step 2. Upload occurrence dataset as a GEE feature collections.</br>
 
 Maybe include a screengrab of MAPBIOMAS?
 
-Step 4. Explore the [MAPBIOMAS website](https://plataforma.panamazonia.mapbiomas.org/)
+_Step 3._ Explore the [MAPBIOMAS website](https://plataforma.panamazonia.mapbiomas.org/)
 
-Step 5. Identify LULC categories / datasets of interest using the [MAPBIOMAS legend](https://mapbiomas.org/en/legend-codes) (make sure it is the correct legend for the MAPBIOMAS assett)
+_Step 4._ Identify LULC categories / datasets of interest using the [MAPBIOMAS legend](https://s3.amazonaws.com/amazonia.mapbiomas.org/leyenda/C%C3%B3digo_de_la_Leyenda_-_colecci%C3%B3n_3.pdf) (make sure it is the correct legend for the MAPBIOMAS assett)
 
-Step 6. Explore [MAPBIOMAS GEE code](https://github.com/mapbiomas-brazil/user-toolkit). Many of the functions you need to working with MAPBIOMAS data has pre-written code, you just need to adapt it to your dataset.
+_Step 5._ Explore [MAPBIOMAS GEE code](https://github.com/mapbiomas-brazil/user-toolkit). Many of the functions you need to working with MAPBIOMAS data has pre-written code, you just need to adapt it to your dataset.
 
-Step 6. Navigate to [Caroline's GEE code](https://code.earthengine.google.com/4e4104e7bb0bac0ab475e34d7681295e)  -- we will walk through this code as a group, it will let you download LULC data per year for each point in the feature collection.
+_Step 6._ Navigate to [Caroline's GEE code](https://code.earthengine.google.com/4e4104e7bb0bac0ab475e34d7681295e)  -- we will walk through this code as a group, it will let you download LULC data per year for each point in the feature collection.
 
-Step 7. Skip actually running the GEE code for now (or try running it in the background) and download this csv of pre-downloaded data (include link) from the data folder.
+_Step 7._ Skip actually running the GEE code for now and download the XXX csv of pre-downloaded data (include link) from the data folder.
 
 
 #### Clean MAPBIOMAS data :broom:
