@@ -2,24 +2,15 @@ setwd("~/Documents/GitHub/UPCH-species-distribution-tutorial")
 
 library(sf); library(rgbif); library(dplyr); library(raster)
 
-<<<<<<< HEAD
 #read in IUCN species names for songbird in Peru
 iucn_species <- read_sf("iucn_peruvian_passerines") #this shape file was downloaded from ICUN redlist site
-=======
-#read in IUCN species names for bats in Peru
-iucn_species <- read_sf("iucn_peruvian_bats") #this shape file was downloaded from ICUN redlist site
->>>>>>> parent of 7e325d9 (different vertebrate occ point options)
 names(iucn_species)[3] <- "scientificName" #needs to match gbif to work
 
 #create a dataframe with the scientific name, and all the occurrences of the sandfly
 latlong <- data.frame()
 
 #for loop to get lat long
-<<<<<<< HEAD
 for (i in 1:1379){
-=======
-for (i in 1:299){
->>>>>>> parent of 7e325d9 (different vertebrate occ point options)
   tryCatch({
     b <- data.frame(occ_search(scientificName = iucn_species$scientificName[i])$data)
     #filter so that only the recorded occurrences are in the dataframe
@@ -51,15 +42,11 @@ pnts_mdd <- pnts_mdd %>%
 
 pnts_mdd <- st_drop_geometry(pnts_mdd) 
 
-<<<<<<< HEAD
 write.csv(pnts_mdd,"passerine_occ_pts_mdd.csv", row.names = TRUE)
 
 #-------------------------------------------------------------#
 #visually check resolution of species                         #
 #-------------------------------------------------------------#
-=======
-write.csv(pnts_mdd,"bat_occ_pts_mdd.csv", row.names = TRUE)
->>>>>>> parent of 7e325d9 (different vertebrate occ point options)
 
 # Remove plot axis
 library(ggplot2)
@@ -71,19 +58,14 @@ no_axis <- theme(axis.title=element_blank(),
 names <- unique(pnts_mdd$scientificName) #look at distribution by species
 #look by genus or family?
 
-# Plot "Chiroderma villosum"
+# Plot each species
 ggplot() +
   geom_sf(data=mdd, color="#2D3E50", fill="lightgrey", size=.15, show.legend = FALSE) +
-<<<<<<< HEAD
   geom_point(data = subset(pnts_mdd, scientificName == names[15]), 
-=======
-  geom_point(data = subset(pnts_mdd, scientificName == names[79]), 
->>>>>>> parent of 7e325d9 (different vertebrate occ point options)
              aes(x = lon, y = lat), alpha = 0.5) +
   theme_minimal() +
   no_axis
 
-<<<<<<< HEAD
 #candidate species
 #"Poecilotriccus albifacies" - 478, 59 unique points
 #"Corythopis torquatus" - 244, 65 unique points
@@ -102,13 +84,6 @@ s <- dismo::gridSample(pnts_mdd[pnts_mdd$scientificName == "Corythopis torquatus
 s0 <- dismo::gridSample(pnts_mdd[pnts_mdd$scientificName != "Corythopis torquatus", 4:5], r, n=1) #178 obs for background species
 
 #now create final thinned dataset
-=======
-#list to re-check
-#"Platyrrhinus brachycephalus"
-#"Mesophylla macconnelli"
-#"Lonchophylla thomasi"
-#"Uroderma magnirostrum"
->>>>>>> parent of 7e325d9 (different vertebrate occ point options)
 
 
 
