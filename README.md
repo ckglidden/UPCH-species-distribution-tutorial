@@ -22,7 +22,7 @@
 Step 1. Download occurrence dataset from the data folder: [final_passerine_data_Oct20_2022.csv](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/final_passerine_dataset_Oct20_2022.csv)
 
 Step 2. Upload occurrence dataset as a GEE feature collections
-(Figure 2. Uploading csv as a feature collection)[https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/GEE_csv_asset.png]
+[Figure 2. Uploading csv as a feature collection](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/GEE_csv_asset.png)
 **Figure 2.** Navigation for uploading csv as a feature collection.
 
 ### 2. Environmental covariate data
