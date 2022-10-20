@@ -1,7 +1,7 @@
 # UPCH geospatial analysis workshop
 
 ## Species distribution modeling tutorial
-> This github page includes a tutorial of how to model the distribution of _Corythopis torquatus_ (Ringed antpipit) using MAPBIOMAS land-use/land-cover data.
+> This github page includes a tutorial of how to model the distribution of _Corythopis torquatus_ (the Ringed antpipit) using MAPBIOMAS land-use/land-cover data.
 
 1. [Presence-background species distribution models](https://github.com/ckglidden/UPCH-species-distribution-tutorial/edit/main/README.md#1-presence-background-species-distribution-models)
 
@@ -11,7 +11,9 @@
 
 
 ### 1. Presence-background species distribution models
-> short lesson on occurrence points versus bkg, include links for explainers and map figure to help us explain??
+> For this model we are using _C. torquatus_ as a focal species, and all other passerine birds as background species. The background species helps to  us to understand the difference between the focal species and the average landscape over which songbirds are sampled. Point data was downloaded from GBIF using the "download_gbif_points.R" code. Note: there are many ways that SDMs can be modeled when lacking true absences of the focal species.
+
+![Figure 1. Distribution of points](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/c_torquatus_sdm_point_distribution.tiff)
 
 #### Uploading point data to GEE :mosquito:
 
