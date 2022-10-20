@@ -28,9 +28,10 @@ _Step 2._ Upload occurrence dataset as a GEE feature collections.</br>
 ### 2. Environmental covariate data
 > short blurb on how environmental data is used to predict the distribution of focal species
 
-#### Downloading MAPBIOMAS data :earth_americas:
+#### Downloading MAPBIOMAS data :earth_americas: </br>
 
-Maybe include a screengrab of MAPBIOMAS?
+<img src=https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/mapbiomas_amazonia_example.png></br>
+**Figure 3.** The MAPBIOMAS Panamazonia platform.
 
 _Step 3._ Explore the [MAPBIOMAS website](https://plataforma.panamazonia.mapbiomas.org/)
 
