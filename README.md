@@ -36,7 +36,7 @@ _Step 3._ Explore the [MAPBIOMAS website](https://plataforma.panamazonia.mapbiom
 
 _Step 4._ Identify LULC categories / datasets of interest using the [MAPBIOMAS legend](https://s3.amazonaws.com/amazonia.mapbiomas.org/leyenda/C%C3%B3digo_de_la_Leyenda_-_colecci%C3%B3n_3.pdf) (make sure it is the correct legend for the MAPBIOMAS assett)
 
-_Step 5._ Explore [MAPBIOMAS GEE code](https://github.com/mapbiomas-brazil/user-toolkit). Many of the functions you need to working with MAPBIOMAS data has pre-written code, you just need to adapt it to your dataset.
+_Step 5._ Explore [MAPBIOMAS GEE code](https://github.com/mapbiomas-brazil/user-toolkit). Many of the functions you need to work with MAPBIOMAS data has pre-written code, you just need to adapt it to your dataset.
 
 _Step 6._ Navigate to [Caroline's GEE code](https://code.earthengine.google.com/4e4104e7bb0bac0ab475e34d7681295e)  -- we will walk through this code as a group, it will let you download LULC data per year for each point in the feature collection.
 
