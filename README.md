@@ -39,7 +39,7 @@ _Step 4._ Identify LULC categories / datasets of interest using the [MAPBIOMAS l
 
 _Step 5._ Explore [MAPBIOMAS GEE code](https://github.com/mapbiomas-brazil/user-toolkit). Many of the functions you need to work with MAPBIOMAS data has pre-written code, you just need to adapt it to your dataset.
 
-_Step 6._ Navigate to [Caroline's GEE code](https://code.earthengine.google.com/4e4104e7bb0bac0ab475e34d7681295e)  -- we will walk through this code as a group, it will let you download LULC data per year for each point in the feature collection.
+_Step 6._ Navigate to [Caroline's GEE code](https://code.earthengine.google.com/4e4104e7bb0bac0ab475e34d7681295e)  -- we will walk through this code as a group, it will let you download LULC area per year for each point in the feature collection.
 
 _Step 7._ Skip actually running the GEE code for now and download the XXX csv of pre-downloaded data (include link) from the data folder.
 
