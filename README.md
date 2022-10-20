@@ -17,7 +17,7 @@
 
 #### Uploading point data to GEE :mosquito:
 
-a. download occurrence dataset [final_passerine_data_Oct20_2022.csv](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/final_passerine_dataset_Oct20_2022.csv)
+a. download occurrence dataset: [final_passerine_data_Oct20_2022.csv](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/final_passerine_dataset_Oct20_2022.csv)
 
 b. upload occurrence dataset as an assett
 
