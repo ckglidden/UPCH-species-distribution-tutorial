@@ -46,11 +46,20 @@ _Step 7._ Skip actually running the GEE code for now and download the XXX csv of
 
 #### Clean MAPBIOMAS data :broom:
 
-```
-
-cleaning code chunk - maybe take average of LULC over a ten year period for simplicty sake?
+_Step 8._ Make sure your data is in long format. If you have data across time you may need to aggregate the data (e.g., take the mean) or subset data to the year of the sample. Below, we will relabel MAPBIOMAS classes to make it easier to view results and then aggregate LULC data by taking the mean across the study period. Note: Given the pace of LULC change, this is a really coarse way of aggregating the data and we likely loose a lot of signal.
 
 ```
+##read in MAPBIOMAS data output
+mapbiomas <- read.csv("")
+
+##rename classes
+
+##aggregate data -- here we will take the mean LULC per datapoint across the study period.
+
+```
+
+_Step 9._ While machine learning can handle highly colinear variables, it can still be helpful for model interpretation to remove highly correlated variables. The correlation value depends on your questions and dataset, but we will use a 0.7 correlation cutoff in the code below. 
+
 ```
 vif or correlation analysis to remove highly correlated variables
 ```
@@ -65,7 +74,7 @@ vif or correlation analysis to remove highly correlated variables
 code chunk to demonstrate how points are clustered for spatial CV
 ```
 
-couple sentences about what needs to be tuned for RF, how to account for unbalanced data, and different metrics for testing the data?
+couple sentences about what needs to be tuned for RF, how to account for unbalanced data, and different metrics for testing the data? have a ready dataset with splits...
 
 ```
 for loop with model tuning & testing for each iteration??
