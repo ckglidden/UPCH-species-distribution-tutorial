@@ -58,7 +58,7 @@ mapbiomas <- read.csv("")
 
 ```
 
-_Step 9._ While machine learning can handle highly colinear variables, it can still be helpful for model interpretation to remove highly correlated variables. The correlation value depends on your questions and dataset, but we will use a 0.7 correlation cutoff in the code below. 
+_Step 9._ Using the code below, we will now clean our LULC data a bit by removing highly colinear variables. While machine learning can handle multicolinearity when making predictions, removing colinear variables can still be helpful for model interpretation to remove highly correlated variables. The correlation value depends on your questions and dataset, but we will use a 0.7 correlation cutoff in the code below. We will use a pair-wise analysis below but another option is a variable inflation analysis (or you can use both).
 
 ```
 vif or correlation analysis to remove highly correlated variables
