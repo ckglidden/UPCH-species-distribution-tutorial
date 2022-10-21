@@ -106,6 +106,8 @@ corr <- abs(cor(mapbiomas_mean_wide[2:ncol(mapbiomas_mean_wide)]))
 chart.Correlation(mapbiomas_mean_wide[2:ncol(mapbiomas_mean_wide)], 
                   histogram = TRUE, method = "pearson")
 ```
+<img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/lulc_correlation.png></br>
+**Figure 4.** Pearson's correlation coeffecients of variables.
 
 ### 3. Machine-learning based SDMs 
 > short blurb on different algorithms that have been used and why we are using one specific one for the workshop (RF?)
