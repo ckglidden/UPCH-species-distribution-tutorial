@@ -46,7 +46,7 @@ _Step 7._ Skip actually running the GEE code for now and download the XXX csv of
 
 #### Clean MAPBIOMAS data :broom:
 
-_Step 8._ Make sure your data is in long format. If you have data across time you may need to aggregate the data (e.g., take the mean) or subset data to the year of the sample. Below, we will relabel MAPBIOMAS classes to make it easier to view results and then aggregate LULC data by taking the mean across the study period. Note: Given the pace of LULC change, this is a really coarse way of aggregating the data and we likely loose a lot of signal.
+_Step 8._ Using the data downloaded in step 7 and the code below, we will relabel MAPBIOMAS classes to make it easier to view results and then aggregate LULC data by taking the mean across the study period. Note: Given the pace of LULC change, this is a really coarse way of aggregating the data and we likely loose a lot of signal.
 
 ```
 ##read in MAPBIOMAS data output
