@@ -58,7 +58,6 @@ library(tidyr); library(dplyr)
 
 occ_data <- read.csv("data/final_passerine_dataset_Oct20_2022.csv")
 mapbiomas <- read.csv("data/passerine_lulc_Oct2022.csv")
-#human_population <- read.csv("data/passerine_population_Oct2022.csv") skipping this for now
 
 #-----------------------------------#
 #update label MAPBIOMAS classes     #
@@ -105,6 +104,8 @@ corr <- abs(cor(mapbiomas_mean_wide[2:ncol(mapbiomas_mean_wide)]))
 #plot correlation and distribution of variables
 chart.Correlation(mapbiomas_mean_wide[2:ncol(mapbiomas_mean_wide)], 
                   histogram = TRUE, method = "pearson")
+                  
+ #no variables are super correlated so the last step for this section is to merge "mapbiomas_mean_wide" by the occurrence set
 ```
 <img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/lulc_correlation.png></br>
 **Figure 4.** Pearson's correlation coeffecients of variables.
