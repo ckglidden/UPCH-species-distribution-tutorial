@@ -46,7 +46,7 @@ _Step 7._ Skip actually running the GEE code for now and download the ["passerin
 
 #### Clean MAPBIOMAS data :broom:
 
-R code for thos section can be found in the ["1_cleaning_data.R"](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/1_cleaning_data.R)
+R code for the following section can be found in the ["1_cleaning_data.R"](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/1_cleaning_data.R)
 
 _Step 8._ Using the data downloaded in step 7 and the code below, we will relabel MAPBIOMAS classes to make it easier to view results and then aggregate LULC data by taking the mean across the study period. Note: Given the pace of LULC change, this is a really coarse way of aggregating the data and we likely loose a lot of signal.
 
