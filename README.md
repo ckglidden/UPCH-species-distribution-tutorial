@@ -49,19 +49,62 @@ _Step 7._ Skip actually running the GEE code for now and download the XXX csv of
 _Step 8._ Using the data downloaded in step 7 and the code below, we will relabel MAPBIOMAS classes to make it easier to view results and then aggregate LULC data by taking the mean across the study period. Note: Given the pace of LULC change, this is a really coarse way of aggregating the data and we likely loose a lot of signal.
 
 ```
-##read in MAPBIOMAS data output
-mapbiomas <- read.csv("")
+#load libraries
+library(tidyr); library(dplyr)
 
-##rename classes
+#-----------------------------------#
+#read in datasets                   #
+#-----------------------------------#
 
-##aggregate data -- here we will take the mean LULC per datapoint across the study period.
+occ_data <- read.csv("data/final_passerine_dataset_Oct20_2022.csv")
+mapbiomas <- read.csv("data/passerine_lulc_Oct2022.csv")
+#human_population <- read.csv("data/passerine_population_Oct2022.csv") skipping this for now
+
+#-----------------------------------#
+#update label MAPBIOMAS classes     #
+#-----------------------------------#
+mapbiomas$class[mapbiomas$class == 3] <- "forest_formation"
+mapbiomas$class[mapbiomas$class == 6] <- "flooded_forest"
+mapbiomas$class[mapbiomas$class == 11] <- "wetland"
+mapbiomas$class[mapbiomas$class == 12] <- "grassland"
+mapbiomas$class[mapbiomas$class == 14] <- "farming"
+mapbiomas$class[mapbiomas$class == 24] <- "urban"
+mapbiomas$class[mapbiomas$class == 25] <- "other_non_vegetated"
+mapbiomas$class[mapbiomas$class == 30] <- "mining"
+mapbiomas$class[mapbiomas$class == 33] <- "river_lake_ocean"
+
+#----------------------------------------------------------#
+#summarize average area per class per point across years   #
+#----------------------------------------------------------#
+
+mapbiomas_mean <- mapbiomas %>%
+                  group_by(row_code, class) %>%
+                  summarise(mean_area = mean(area))
+
+#----------------------------------------------------------#
+#go from wide to long so each class is a unique column     #
+#----------------------------------------------------------#
+
+mapbiomas_mean_wide <- mapbiomas_mean %>% 
+  pivot_wider(names_from = class, values_from = mean_area) 
+
+#change NAs to zero as NA means the landclass is not present
+mapbiomas_mean_wide[is.na(mapbiomas_mean_wide)] <- 0
 
 ```
 
 _Step 9._ Using the code below, we will now clean our LULC data a bit by removing highly colinear variables. While machine learning can handle multicolinearity when making predictions, removing colinear variables can still be helpful for model interpretation to remove highly correlated variables. The correlation value depends on your questions and dataset, but we will use a 0.7 correlation cutoff in the code below. We will use a pair-wise analysis below but another option is a variable inflation analysis (or you can use both).
 
 ```
-vif or correlation analysis to remove highly correlated variables
+#load libraries
+library(PerformanceAnalytics)
+
+#correlation matrix
+corr <- abs(cor(mapbiomas_mean_wide[2:ncol(mapbiomas_mean_wide)])) 
+
+#plot correlation and distribution of variables
+chart.Correlation(mapbiomas_mean_wide[2:ncol(mapbiomas_mean_wide)], 
+                  histogram = TRUE, method = "pearson")
 ```
 
 ### 3. Machine-learning based SDMs 
