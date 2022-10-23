@@ -167,13 +167,57 @@ table(analysis_data$fold)
 Now we train the model on each set of k-1 folds and test it on the holdout fold. For each iteration, we tune the randomForest model to optimize model performance. The tuning step can also be used to prevent over-fitting, depending on your dataset and the parameter values you search over. There are different methods for tuning a machine-learning model. Below we use a [hypergrid search](https://afit-r.github.io/random_forests#tune), and select the final parameters based on the combination that yields the best model performance.
 
 ```
-for loop with model tuning & testing for each iteration??
+library(ranger)
+
+#------------------------------------#
+#define the grid to search over      #
+#------------------------------------#
+# hyperparameter grid search - keeping it small to save time
+
+hyper_grid <- expand.grid(
+  mtry       = seq(20, 30, by = 5), #the number of variables to randomly sample as candidates at each split
+  node_size  = seq(3, 9, by = 3), #minimum number of samples within the terminal nodes
+  sampe_size = c(.55, .632, .70, .80), #the number of samples to train on
+  num.trees  = c(500, 1000), #number of trees
+  OOB_RMSE   = 0
+)
+
+#------------------------------------------------------------#
+#tune, train model, calculate out-of-sample performance      #
+#------------------------------------------------------------#
+
+for(i in 1:5){
+
+#tune model
+
+
+#train model
+
+
+
+#save model performance results
+
+
+
+}
+
+#------------------------------------------------------------#
+#calculate final performance                                 #
+#------------------------------------------------------------#
+
+
+
+
+
+
+
 ```
 
 #### Training of final model :woman_technologist:
 
 ```
-code chunk for final model w/ all of the data - should we incorporate uncertainty around variable importance at this point?
+
+
 ``` 
 
 #### Model interpretation :bar_chart: :chart_with_upwards_trend:
