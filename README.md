@@ -202,7 +202,7 @@ for(i in 1:5){
 }
 
 #------------------------------------------------------------#
-#calculate final performance                                 #
+#calculate average out of sample performance                 #
 #------------------------------------------------------------#
 
 
