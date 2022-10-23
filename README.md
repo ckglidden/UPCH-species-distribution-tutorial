@@ -164,7 +164,7 @@ analysis_data <- merge(data0, splits_df, by = "row_code")
 table(analysis_data$fold)
 ```
 
-couple sentences about what needs to be tuned for RF, how to account for unbalanced data, and different metrics for testing the data? have a ready dataset with splits...
+Now we train the model on each set of k-1 folds and test it on the holdout fold. For each iteration, we tune the randomForest model to optimize model performance. The tuning step can also be used to prevent over-fitting, depending on your dataset and the parameter values you search over. There are different methods for tuning a machine-learning model. Below we use a [hypergrid search](https://afit-r.github.io/random_forests#tune), and select the final parameters based on the combination that yields the best model performance.
 
 ```
 for loop with model tuning & testing for each iteration??
