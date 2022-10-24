@@ -61,9 +61,9 @@ library(tidyr); library(dplyr)
 occ_data <- read.csv("data/final_passerine_dataset_Oct20_2022.csv")
 mapbiomas <- read.csv("data/passerine_lulc_Oct2022.csv")
 
-#-----------------------------------#
-#update label MAPBIOMAS classes     #
-#-----------------------------------#
+#---------------------------------------#
+#update label for MAPBIOMAS classes     #
+#---------------------------------------#
 mapbiomas$class[mapbiomas$class == 3] <- "forest_formation"
 mapbiomas$class[mapbiomas$class == 6] <- "flooded_forest"
 mapbiomas$class[mapbiomas$class == 11] <- "wetland"
