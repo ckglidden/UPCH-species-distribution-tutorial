@@ -44,7 +44,7 @@ mapbiomas_mean_wide[is.na(mapbiomas_mean_wide)] <- 0
 
 
 #----------------------------------------------------------#
-#summarize average population per point across years   #
+#summarize average population per point across years       #
 #----------------------------------------------------------#
 
 ##skipping this for now
