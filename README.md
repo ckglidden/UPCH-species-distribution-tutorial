@@ -41,7 +41,7 @@ _Step 5._ Explore [MAPBIOMAS GEE code](https://github.com/mapbiomas-brazil/user-
 
 _Step 6._ Navigate to [Caroline's GEE code](https://code.earthengine.google.com/4e4104e7bb0bac0ab475e34d7681295e)  -- **break this into more steps and include code chunks below**
 
-_Step 7._ Skip actually running the GEE code for now and download the ["passerine_lulc_Oct2022.csv" file](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/passerine_lulc_Oct2022.csv) of pre-downloaded data (include link) from the data folder.
+_Step 7._ Skip actually running the GEE code for now and download the ["passerine_lulc_Oct2022.csv" file](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/passerine_lulc_Oct2022.csv) of pre-downloaded data from the data folder.
 
 
 #### Clean MAPBIOMAS data :broom:
