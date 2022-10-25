@@ -30,7 +30,7 @@ _Step 2._ Upload occurrence dataset as a GEE feature collections.</br>
 
 #### Downloading MAPBIOMAS data :earth_americas: </br>
 
-<img src=https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/mapbiomas_amazonia_example.png></br>
+<img src=https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/mapbiomas_amazonia_example.png width="900" height="550"></br>
 **Figure 3.** The MAPBIOMAS Panamazonia platform.
 
 _Step 3._ Explore the [MAPBIOMAS website](https://plataforma.panamazonia.mapbiomas.org/)
