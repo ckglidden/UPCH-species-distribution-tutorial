@@ -57,6 +57,10 @@ function bufferPoints(radius, bounds) {
 /////Implement function to make each point is a 1km^2 polygon
 var pointBuffers = amazon_mammals.map(bufferPoints(500, true)); //true = square pixel
 
+// Paint FeatureCollection to GEE map for visualization.
+var fcVis = pointBuffers.draw({color: '800080', pointRadius: 10});
+Map.addLayer(fcVis);
+
 ```
 
 [Caroline's GEE code](https://code.earthengine.google.com/4e4104e7bb0bac0ab475e34d7681295e)  -- **break this into more steps and include code chunks below**
