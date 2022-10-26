@@ -20,6 +20,7 @@ data0_sf <- st_as_sf(x = data0,
                              crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
 
 #identify groups of 5 clusters using the spatialsample package
+set.seed(909) #set seed to get same split each time
 clusters <- spatial_clustering_cv(data0_sf, v = 3) #k-means clustering to identify 5 cross-validation folds
 
 #for loop to create a dataframe that assigns a fold number to each data point
@@ -63,6 +64,14 @@ rf_performance <- data.frame(model = rep("RF", 3),
                              presence = rep(NA, 3), #number of presence points in the fold
                              background = rep(NA, 3)) #number of bkg points in the fold
 
+#create empty dataframe to store parameters used to train each model
+hypergrid_final <- data.frame(mtry = rep(NA, 3), #the number of variables to randomly sample as candidates at each split
+                              node_size  = rep(NA, 3), #minimum number of samples within the terminal nodes
+                              sampe_size = rep(NA, 3), #the number of samples to train on
+                              num.trees  = rep(NA, 3)) #number of trees
+ 
+  
+  
 for(i in 1:3){ # run one iteration per fold
   
   train <- analysis_data[analysis_data$fold != i, ]
@@ -98,7 +107,7 @@ for(i in 1:3){ # run one iteration per fold
       mtry = hyper_grid$mtry[j],
       min.node.size = hyper_grid$node_size[j],
       sample.fraction = hyper_grid$sampe_size[j],
-      classification = TRUE,
+      probability = TRUE,
       seed = 123
     )
     
@@ -119,11 +128,11 @@ for(i in 1:3){ # run one iteration per fold
     mtry = hyper_grid2$mtry[1],
     min.node.size = hyper_grid2$node_size[1],
     sample.fraction = hyper_grid2$sampe_size[1],
-    classification = TRUE,
+    probability = TRUE,
     seed = 123)
   
   #save model performance results
-  pred0 <- predict(train_model, data=test_complete); pred <- pred0$predictions
+  pred0 <- predict(train_model, data=test_complete); pred <- pred0$predictions[,1]
   auc <- pROC::roc(response=test_complete[,"presence"], predictor=pred, levels=c(0,1), auc = TRUE)
   rf_performance[i, "auc"] <- auc$auc
   best.threshold <- pROC::coords(auc, "best", ret = "threshold")
@@ -136,6 +145,10 @@ for(i in 1:3){ # run one iteration per fold
   rf_performance[i, "presence"] <- nrow(subset(test, presence == 1))
   rf_performance[i, "background"] <- nrow(subset(test, presence == 0))
   
+  hypergrid_final[i, "mtry"] <- hyper_grid2$mtry[1]
+  hypergrid_final[i, "node_size"] <- hyper_grid2$node_size[1]
+  hypergrid_final[i, "sampe_size"] <- hyper_grid2$sampe_size[1]
+  hypergrid_final[i, "num.trees"] <- hyper_grid2$num.trees[1]
   
 }
 
@@ -153,11 +166,11 @@ model_performance <- data.frame(metric = names(rf_performance)[2:ncol(rf_perform
 final_model <- ranger(
   formula = presence ~ farming + urban + flooded_forest + forest_formation + river_lake_ocean, 
   data = analysis_data[complete.cases(analysis_data),], 
-  num.trees = ...,
-  mtry = ...,
-  min.node.size = ...,
-  sample.fraction =...,
-  classification = TRUE,
+  num.trees = 500,
+  mtry = 2,
+  min.node.size = 3,
+  sample.fraction = 0.6,
+  probability = TRUE,
   importance = 'permutation', #specify this to get variable importance in the next step
   seed = 123)
 
