@@ -84,21 +84,33 @@ _Step 11._ Using the data downloaded in step 7 and the code below, we will relab
 library(tidyr); library(dplyr)
 
 #-----------------------------------#
-#read in dataset.                   #
+#read in datasets                   #
 #-----------------------------------#
 
-mapbiomas <- read.csv("data/ter_mammals_lulc_Oct22.csv.csv")
+occ_data <- read.csv("data/b_tridactylus_ter_mammals_amazon_thinned_Oct22.csv")
+mapbiomas <- read.csv("data/b_tridactylus_ter_mammals_lulc_Oct2022.csv")
+#human_population <- read.csv("...") skipping this for now
 
-#---------------------------------------#
-#update label for MAPBIOMAS classes     #
-#---------------------------------------#
+#-----------------------------------#
+#update label MAPBIOMAS classes     #
+#-----------------------------------#
+
+#you can look at the classes included in the data using:
+#unique(mapbiomas$class)
+
+#relabel each class to make it easier to see results
 mapbiomas$class[mapbiomas$class == 3] <- "forest_formation"
+mapbiomas$class[mapbiomas$class == 4] <- "savannah_formation"
+mapbiomas$class[mapbiomas$class == 5] <- "mangrove"
 mapbiomas$class[mapbiomas$class == 6] <- "flooded_forest"
 mapbiomas$class[mapbiomas$class == 11] <- "wetland"
 mapbiomas$class[mapbiomas$class == 12] <- "grassland"
+mapbiomas$class[mapbiomas$class == 13] <- "non_forested_natural"
 mapbiomas$class[mapbiomas$class == 14] <- "farming"
 mapbiomas$class[mapbiomas$class == 24] <- "urban"
 mapbiomas$class[mapbiomas$class == 25] <- "other_non_vegetated"
+mapbiomas$class[mapbiomas$class == 27] <- "not_observed"
+mapbiomas$class[mapbiomas$class == 29] <- "rocky_outcrop"
 mapbiomas$class[mapbiomas$class == 30] <- "mining"
 mapbiomas$class[mapbiomas$class == 33] <- "river_lake_ocean"
 
@@ -120,6 +132,8 @@ mapbiomas_mean_wide <- mapbiomas_mean %>%
 #change NAs to zero as NA means the landclass is not present
 mapbiomas_mean_wide[is.na(mapbiomas_mean_wide)] <- 0
 
+
+
 ```
 
 _Step 9._ Using the code below, we will now clean our LULC data a bit more by removing highly colinear variables. While machine learning can handle multicolinearity when making predictions, removing colinear variables can still be helpful for model interpretation. The correlation value depends on your questions and dataset, but we will use a 0.7 correlation cutoff in the code below. We will use a pair-wise analysis but another option is a variable inflation analysis (or you can use both).
@@ -128,14 +142,21 @@ _Step 9._ Using the code below, we will now clean our LULC data a bit more by re
 #load libraries
 library(PerformanceAnalytics)
 
-#calculate a correlation matrix
+#----------------------------------------------------------#
+#pearsons correlation analysis                             #
+#----------------------------------------------------------#
+
+# correlation in absolute terms
 corr <- abs(cor(mapbiomas_mean_wide[2:ncol(mapbiomas_mean_wide)])) 
 
-#plot correlation and distribution of variables
+#correlation plot with points on lower left of matrix, correlation coeffecients on upper right, and distributions on the diagonal
 chart.Correlation(mapbiomas_mean_wide[2:ncol(mapbiomas_mean_wide)], 
                   histogram = TRUE, method = "pearson")
-                  
- #no variables are super correlated so the last step for this section is to merge "mapbiomas_mean_wide" by the occurrence set
+
+#no variables are super correlated so we will keep them for now and write the cleaned datatable to a csv for later use
+write.csv(mapbiomas_mean_wide, "data/b_tridactylus_ter_mammals_lulc_cleaned_Oct2022.csv")
+
+                 
 ```
 <img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/lulc_correlation.png></br>
 **Figure 4.** Pearson's correlation coeffecients of variables.
@@ -157,7 +178,7 @@ library(spatialsample); library(sf)
 #read in occ data & covariate data, merge by row id  (or merge from output of above code)    #
 #--------------------------------------------------------------------------------------------#
 
-lulc <- read.csv("data/.  .csv")
+lulc <- read.csv("data/b_tridactylus_ter_mammals_lulc_cleaned_Oct2022.csv")
 amazon_basin_pnts <-  read.csv("data/b_tridactylus_ter_mammals_amazon_thinned_Oct22.csv.csv")
 
 data0 <- left_join(amazon_basin_pnts, lulc, by = "row_code")
