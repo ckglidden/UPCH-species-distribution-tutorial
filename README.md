@@ -89,7 +89,6 @@ library(tidyr); library(dplyr)
 
 occ_data <- read.csv("data/b_tridactylus_ter_mammals_amazon_thinned_Oct22.csv")
 mapbiomas <- read.csv("data/b_tridactylus_ter_mammals_lulc_Oct2022.csv")
-#human_population <- read.csv("...") skipping this for now
 
 #-----------------------------------#
 #update label MAPBIOMAS classes     #
@@ -179,7 +178,7 @@ library(spatialsample); library(sf)
 #--------------------------------------------------------------------------------------------#
 
 lulc <- read.csv("data/b_tridactylus_ter_mammals_lulc_cleaned_Oct2022.csv")
-amazon_basin_pnts <-  read.csv("data/b_tridactylus_ter_mammals_amazon_thinned_Oct22.csv.csv")
+amazon_basin_pnts <-  read.csv("data/b_tridactylus_ter_mammals_amazon_thinned_Oct22.csv")
 
 data0 <- left_join(amazon_basin_pnts, lulc, by = "row_code")
 
@@ -204,7 +203,7 @@ for(i in 1:5){
   splits_df <- rbind(splits_df, new_df) #bind all points x fold id together
 }
 
-splits_df <- st_drop_geometry(splits_df) #drop shapefiles
+splits_df <- st_drop_geometry(splits_df) #drop geometry (alternatively, you could keep geometry and save this as a shapefile
 
 #final data - merge cluster id to final dataset for analysis
 analysis_data <- merge(data0, splits_df, by = "row_code")
