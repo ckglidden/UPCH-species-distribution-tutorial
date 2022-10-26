@@ -88,8 +88,8 @@ library(tidyr); library(dplyr)
 #read in datasets                   #
 #-----------------------------------#
 
-occ_data <- read.csv("data/b_tridactylus_ter_mammals_amazon_thinned_Oct22.csv")
-mapbiomas <- read.csv("data/b_tridactylus_ter_mammals_lulc_Oct2022.csv")
+occ_data <- read.csv("data/m_noctivagus_ter_mammals_amazon_thinned_Oct22.csv")
+mapbiomas <- read.csv("data/m_noctivagus_ter_mammals_lulc_Oct2022.csv")
 
 #-----------------------------------#
 #update label MAPBIOMAS classes     #
@@ -110,9 +110,9 @@ mapbiomas$class[mapbiomas$class == 14] <- "farming"
 mapbiomas$class[mapbiomas$class == 24] <- "urban"
 mapbiomas$class[mapbiomas$class == 25] <- "other_non_vegetated"
 mapbiomas$class[mapbiomas$class == 27] <- "not_observed"
-mapbiomas$class[mapbiomas$class == 29] <- "rocky_outcrop"
 mapbiomas$class[mapbiomas$class == 30] <- "mining"
 mapbiomas$class[mapbiomas$class == 33] <- "river_lake_ocean"
+mapbiomas$class[mapbiomas$class == 34] <- "glacier"
 
 #----------------------------------------------------------#
 #summarize average area per class per point across years   #
@@ -136,7 +136,7 @@ mapbiomas_mean_wide[is.na(mapbiomas_mean_wide)] <- 0
 
 ```
 
-_Step 9._ Using the code below, we will now clean our LULC data a bit more by removing highly colinear variables. While machine learning can handle multicolinearity when making predictions, removing colinear variables can still be helpful for model interpretation. The correlation value depends on your questions and dataset, but we will use a 0.7 correlation cutoff in the code below. We will use a pair-wise analysis but another option is a variable inflation analysis (or you can use both).
+_Step 9._ Using the code below, we will now clean our LULC data a bit more by removing highly colinear variables. While machine learning can handle multicolinearity when making predictions, removing colinear variables can still be helpful for model interpretation. The correlation value depends on your questions and dataset, but we will use a 0.75 correlation cutoff in the code below. We will use a pair-wise analysis but another option is a variable inflation analysis (or you can use both).
 
 ```
 #load libraries
@@ -154,7 +154,7 @@ chart.Correlation(mapbiomas_mean_wide[2:ncol(mapbiomas_mean_wide)],
                   histogram = TRUE, method = "pearson")
 
 #no variables are super correlated so we will keep them for now and write the cleaned datatable to a csv for later use
-write.csv(mapbiomas_mean_wide, "data/b_tridactylus_ter_mammals_lulc_cleaned_Oct2022.csv")
+write.csv(mapbiomas_mean_wide, "data/m_noctivagus_ter_mammals_lulc_cleaned_Oct2022.csv")
 
                  
 ```
