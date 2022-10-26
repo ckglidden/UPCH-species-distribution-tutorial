@@ -5,10 +5,10 @@ library(tidyr); library(dplyr); library(spatialsample); library(sf)
 #read in data & merge by row id  (or merge from output of above code)    #
 #------------------------------------------------------------------------#
 
-lulc <- read.csv("data/passerine_lulc_clean_Oct2022.csv")
-mdd_pnts <-  read.csv("data/final_passerine_dataset_Oct20_2022.csv")
+lulc <- read.csv("data/b_tridactylus_ter_mammals_lulc_cleaned_Oct2022.csv")
+amazon_basin_pnts <-  read.csv("data/b_tridactylus_ter_mammals_amazon_thinned_Oct22.csv.csv")
 
-data0 <- left_join(mdd_pnts, lulc, by = "row_code")
+data0 <- left_join(amazon_basin_pnts, lulc, by = "row_code")
 
 #------------------------------------#
 #get fold id by k-means clustering   #
