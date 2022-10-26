@@ -1,5 +1,5 @@
 ####random forest species distribution models
-library(tidyr); library(dplyr); library(spatialsample); library(sf)
+library(tidyr); library(dplyr); library(spatialsample); library(sf); library(ranger)
 
 #------------------------------------------------------------------------#
 #read in data & merge by row id  (or merge from output of above code)    #
@@ -39,4 +39,119 @@ analysis_data <- merge(data0, splits_df, by = "row_code")
 #sanity check: check how many data points are in each fold
 table(analysis_data$fold)
 
+#write df to save for later
 write.csv(analysis_data, "data/b_tridactylus_ter_mammals_finalData_Oct22.csv")
+
+
+#------------------------------------------------#
+#run spatial cv to evaluate model performance    #
+#------------------------------------------------#
+
+
+
+#------------------------------------#
+#tune, train model,                  #
+#------------------------------------#
+
+#create empty dataframe to for loop to store results, one row for each fold
+rf_performance <- data.frame(model = rep("RF", 5),
+                             fold_id = 1:5,
+                             auc = rep(NA, 5),
+                             sensitivity = rep(NA, 5),
+                             specificity = rep(NA, 5),
+                             oob_error = rep(NA, 5),
+                             presence = rep(NA, 5), #number of presence points in the fold
+                             background = rep(NA, 5)) #number of bkg points in the fold
+
+for(i in 1:5){
+  
+  train <- analysis_data[analysis_data$fold == i, ]
+  test <- analysis_data[analysis_data$fold != i, ]
+  
+  #remove any rows with NAs bc RF can't handle missing data
+  train_complete <- train[complete.cases(train),]
+  test_complete <- test[complete.cases(test),]
+  
+  
+  #------------------------------------#
+  #define the grid to search over      #
+  #------------------------------------#
+  # hyperparameter grid search - keeping it small to save time
+  # the function below creates a grid with all combinations of parameters
+  
+  hyper_grid <- expand.grid(
+    mtry       = seq(20, 30, by = 5), #the number of variables to randomly sample as candidates at each split
+    node_size  = seq(3, 9, by = 3), #minimum number of samples within the terminal nodes
+    sampe_size = c(.6, .70, .80), #the number of samples to train on
+    num.trees  = c(500, 1000), #number of trees
+    OOB_RMSE   = 0
+  )
+  
+  #tune model
+  for(j in 1:nrow(hyper_grid)) {
+    
+    # train model
+    model <- ranger(
+      formula = XXXXXXXXXXXXXXXXXXXXXXX ~ ., 
+      data = train_complete, 
+      num.trees = hyper_grid$num.trees[j],
+      mtry = hyper_grid$mtry[j],
+      min.node.size = hyper_grid$node_size[j],
+      sample.fraction = hyper_grid$sampe_size[j],
+      seed = 123
+    )
+    
+    # add OOB error to grid
+    hyper_grid$OOB_RMSE[i] <- sqrt(model$prediction.error)
+  }
+  
+  #arrange the hypergrid so the lowest out-of-bag error (best performing set of parameters) is in the first row
+  hyper_grid2 <- hyper_grid %>% 
+    dplyr::arrange(OOB_RMSE)
+  
+  #train model
+  final_model <- ranger(
+    formula = XXXXXXXXXXXXXXXXXXXX ~ ., 
+    data = train_complete, 
+    num.trees = hyper_grid2$num.trees[1],
+    mtry = hyper_grid2$mtry[1],
+    min.node.size = hyper_grid2$node_size[1],
+    sample.fraction = hyper_grid2$sampe_size[1],
+    seed = 123)
+  
+  
+  #save model performance results
+  pred <- as.data.frame(predict(sdm_rf, newdata=test_complete[,-1], 'prob')) #take out response from test data
+  auc <- pROC::roc(response=as.numeric(test_complete[,1]), predictor=as.numeric(pred[,2]), levels=c(1,2), auc = TRUE)
+  rf_performance[i, "auc"] <- auc$auc
+  best.threshold <- pROC::coords(auc, "best", ret = "threshold")
+  metrica.format <- data.frame(cbind(ifelse(test_complete[,1]==1,1,0)),ifelse(as.numeric(pred[,2])>=best.threshold[1,1],1,0)); colnames(metrica.format) <- c("labels","predictions"); rownames(metrica.format) <- 1:dim(metrica.format)[1]
+  sensitivity <- metrica::recall(data = metrica.format, obs = labels, pred = predictions)$recall 
+  rf_performance[i, "sensitivity"] <- sensitivity 
+  specificity <- metrica::specificity(data = metrica.format, obs = labels, pred = predictions)$spec
+  rf_performance[i, "specificity"] <- specificity
+  rf_performance[i, "oob_error"] <- sdm_rf$err.rate[hyper_grid2$num.trees[1],1]
+  rf_performance[i, "presence"] <- nrow(subset(test, presence == 1))
+  rf_performance[i, "background"] <- nrow(subset(test, presence == 0))
+  
+  
+}
+
+#------------------------------------------------------------#
+#calculate average out of sample performance                 #
+#------------------------------------------------------------#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
