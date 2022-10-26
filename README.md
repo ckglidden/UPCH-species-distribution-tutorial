@@ -77,7 +77,7 @@ _Step 10._ Skip actually running the GEE code for now and download the ["ter_mam
 
 R code for the following section can be found in the ["1_cleaning_data.R"](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/1_cleaning_data.R)
 
-_Step 11._ Using the data downloaded in step 7 and the code below, we will relabel MAPBIOMAS classes to make it easier to view results. We'll then aggregate LULC data by taking the mean LULC from 2010-2020. Note: Given the pace of LULC change, this is a really coarse way of aggregating the data and we likely loose a lot of signal.
+_Step 11._ Using the data downloaded in step 7 and the code below, we will relabel MAPBIOMAS classes to make it easier to view results. We'll then aggregate LULC data by taking the mean LULC from 2010-2020. Note: Given the pace of LULC change, this is a really coarse way of aggregating the data and we likely loose a lot of signal.  
 
 ```
 #load libraries
@@ -89,7 +89,6 @@ library(tidyr); library(dplyr)
 
 occ_data <- read.csv("data/b_tridactylus_ter_mammals_amazon_thinned_Oct22.csv")
 mapbiomas <- read.csv("data/b_tridactylus_ter_mammals_lulc_Oct2022.csv")
-#human_population <- read.csv("...") skipping this for now
 
 #-----------------------------------#
 #update label MAPBIOMAS classes     #
@@ -179,7 +178,7 @@ library(spatialsample); library(sf)
 #--------------------------------------------------------------------------------------------#
 
 lulc <- read.csv("data/b_tridactylus_ter_mammals_lulc_cleaned_Oct2022.csv")
-amazon_basin_pnts <-  read.csv("data/b_tridactylus_ter_mammals_amazon_thinned_Oct22.csv.csv")
+amazon_basin_pnts <-  read.csv("data/b_tridactylus_ter_mammals_amazon_thinned_Oct22.csv")
 
 data0 <- left_join(amazon_basin_pnts, lulc, by = "row_code")
 
@@ -204,7 +203,7 @@ for(i in 1:5){
   splits_df <- rbind(splits_df, new_df) #bind all points x fold id together
 }
 
-splits_df <- st_drop_geometry(splits_df) #drop shapefiles
+splits_df <- st_drop_geometry(splits_df) #drop geometry (alternatively, you could keep geometry and save this as a shapefile
 
 #final data - merge cluster id to final dataset for analysis
 analysis_data <- merge(data0, splits_df, by = "row_code")
@@ -213,7 +212,7 @@ analysis_data <- merge(data0, splits_df, by = "row_code")
 table(analysis_data$fold)
 ```
 
-_Step 11._ Now we train the model on each set of k-1 folds and test it on the holdout fold. For each iteration, we tune the randomForest model to optimize model performance. The tuning step can also be used to prevent over-fitting, depending on your dataset and the parameter values you search over. There are different methods for tuning a machine-learning model. Below we use a [hypergrid search](https://afit-r.github.io/random_forests#tune) and select the final parameters based on the combination that yields the best model performance.
+_Step 11._ Now we train the model on each set of k-1 folds and test it on the holdout fold. For each iteration, we tune the randomForest model to optimize model performance. The tuning step can also be used to prevent over-fitting, depending on your dataset and the parameter values you search over. There are different methods for tuning a machine-learning model. Below we use a [hypergrid search](https://afit-r.github.io/random_forests#tune) and select the final parameters based on the combination that yields the best model performance. If you had trouble running _Step 10._ you can download the ["b_tridactylus_ter_mammals_finalData_Oct22.csv"] to use for the next few steps.
 
 ```
 library(ranger)
