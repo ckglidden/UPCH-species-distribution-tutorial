@@ -327,30 +327,43 @@ model_performance <- data.frame(metric = names(rf_performance)[2:ncol(rf_perform
 #### Training of final model :woman_technologist:
 
 ```
+#------------------------------------------------------------#
+#train final model                                           #
+#------------------------------------------------------------#
 
+final_model <- ranger(
+  formula = presence ~ farming + urban + flooded_forest + forest_formation + river_lake_ocean, 
+  data = analysis_data[complete.cases(analysis_data),], 
+  num.trees = ...,
+  mtry = ...,
+  min.node.size = ...,
+  sample.fraction =...,
+  classification = TRUE,
+  importance = 'permutation', #specify this to get variable importance in the next step
+  seed = 123)
 
 ``` 
 
 #### Model interpretation :bar_chart: :chart_with_upwards_trend:
 
 ##### Variable importance
-_Step 12._ There are many ways to calculate variable importance. Here, we will use a intuitive and model agnostic measure of variable importance. In sum, we will calculate change in model performance when a focal variable is randomly permuted, which will tell us the degree to which the variable contributes to model performance and thus accuracy of model predictions. 
+_Step 12._ There are many ways to calculate variable importance. Here, we will use a intuitive and model agnostic measure of variable importance. In sum, we will calculate change in model performance when a focal variable is randomly permuted, which will tell us the degree to which the variable contributes to model performance and thus accuracy of model predictions. **need to define y axis better**
 
 
 ```
-library(iml); library(ggplot2)
+#------------------------------------------------------------#
+#variable importance                                         #
+#------------------------------------------------------------#
 
-X <- analysis_data[, c("farming", "urban", "flooded_forest", "forest_formation", "river_lake_ocean"]
-predictor <- Predictor$new(final_rf, data = X, y = analysis_data$presence)
-
-#get importance (or change in model performance when the variable is randomly permuted)
-imp <- FeatureImp$new(predictor, loss = "mae")
-
-#view table
-imp$results
-
+#extract model results to get permutation importance
+permutation_importance <- data.frame(variable = rownames(as.data.frame(final_model$variable.importance)),
+                                     importance = as.vector(final_model$variable.importance)) 
+  
 #plot importance
-plot(imp)
+ggplot(permutation_importance, aes(x = variable, y = importance)) +
+  geom_bar(stat="identity") +
+  ggtitle("permutation importance") +
+  theme_classic()
 
 ```
 
