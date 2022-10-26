@@ -65,8 +65,8 @@ rf_performance <- data.frame(model = rep("RF", 5),
 
 for(i in 1:5){
   
-  train <- analysis_data[analysis_data$fold == i, ]
-  test <- analysis_data[analysis_data$fold != i, ]
+  train <- analysis_data[analysis_data$fold != i, ]
+  test <- analysis_data[analysis_data$fold == i, ]
   
   #remove any rows with NAs bc RF can't handle missing data
   train_complete <- train[complete.cases(train),]
@@ -80,7 +80,7 @@ for(i in 1:5){
   # the function below creates a grid with all combinations of parameters
   
   hyper_grid <- expand.grid(
-    mtry       = seq(20, 30, by = 5), #the number of variables to randomly sample as candidates at each split
+    mtry       = seq(1, 4, by = 1), #the number of variables to randomly sample as candidates at each split
     node_size  = seq(3, 9, by = 3), #minimum number of samples within the terminal nodes
     sampe_size = c(.6, .70, .80), #the number of samples to train on
     num.trees  = c(500, 1000), #number of trees
@@ -92,12 +92,13 @@ for(i in 1:5){
     
     # train model
     model <- ranger(
-      formula = XXXXXXXXXXXXXXXXXXXXXXX ~ ., 
+      formula = presence ~ farming + urban + flooded_forest + forest_formation + river_lake_ocean, 
       data = train_complete, 
       num.trees = hyper_grid$num.trees[j],
       mtry = hyper_grid$mtry[j],
       min.node.size = hyper_grid$node_size[j],
       sample.fraction = hyper_grid$sampe_size[j],
+      classification = TRUE,
       seed = 123
     )
     
@@ -110,27 +111,27 @@ for(i in 1:5){
     dplyr::arrange(OOB_RMSE)
   
   #train model
-  final_model <- ranger(
-    formula = XXXXXXXXXXXXXXXXXXXX ~ ., 
+  train_model <- ranger(
+    formula = presence ~ farming + urban + flooded_forest + forest_formation + river_lake_ocean, 
     data = train_complete, 
     num.trees = hyper_grid2$num.trees[1],
     mtry = hyper_grid2$mtry[1],
     min.node.size = hyper_grid2$node_size[1],
     sample.fraction = hyper_grid2$sampe_size[1],
+    classification = TRUE,
     seed = 123)
   
-  
   #save model performance results
-  pred <- as.data.frame(predict(sdm_rf, newdata=test_complete[,-1], 'prob')) #take out response from test data
-  auc <- pROC::roc(response=as.numeric(test_complete[,1]), predictor=as.numeric(pred[,2]), levels=c(1,2), auc = TRUE)
+  pred0 <- predict(train_model, data=test_complete); pred <- pred0$predictions
+  auc <- pROC::roc(response=test_complete[,"presence"], predictor=pred, levels=c(0,1), auc = TRUE)
   rf_performance[i, "auc"] <- auc$auc
   best.threshold <- pROC::coords(auc, "best", ret = "threshold")
-  metrica.format <- data.frame(cbind(ifelse(test_complete[,1]==1,1,0)),ifelse(as.numeric(pred[,2])>=best.threshold[1,1],1,0)); colnames(metrica.format) <- c("labels","predictions"); rownames(metrica.format) <- 1:dim(metrica.format)[1]
+  metrica.format <- data.frame(cbind(ifelse(test_complete[,"presence"]==1,1,0)),ifelse(pred >= best.threshold[1,1],1,0)); colnames(metrica.format) <- c("labels","predictions"); rownames(metrica.format) <- 1:dim(metrica.format)[1]
   sensitivity <- metrica::recall(data = metrica.format, obs = labels, pred = predictions)$recall 
   rf_performance[i, "sensitivity"] <- sensitivity 
   specificity <- metrica::specificity(data = metrica.format, obs = labels, pred = predictions)$spec
   rf_performance[i, "specificity"] <- specificity
-  rf_performance[i, "oob_error"] <- sdm_rf$err.rate[hyper_grid2$num.trees[1],1]
+  rf_performance[i, "oob_error"] <- train_model$prediction.error
   rf_performance[i, "presence"] <- nrow(subset(test, presence == 1))
   rf_performance[i, "background"] <- nrow(subset(test, presence == 0))
   
@@ -141,14 +142,37 @@ for(i in 1:5){
 #calculate average out of sample performance                 #
 #------------------------------------------------------------#
 
+model_performance <- data.frame(metric = names(rf_performance)[2:ncol(rf_performance)],
+                                mean_metric = colMeans(rf_performance[2:ncol(rf_performance)]))
 
+#------------------------------------------------------------#
+#train final model                                           #
+#------------------------------------------------------------#
 
+final_model <- ranger(
+  formula = presence ~ farming + urban + flooded_forest + forest_formation + river_lake_ocean, 
+  data = analysis_data[complete.cases(analysis_data),], 
+  num.trees = ...,
+  mtry = ...,
+  min.node.size = ...,
+  sample.fraction =...,
+  classification = TRUE,
+  importance = 'permutation', #specify this to get variable importance in the next step
+  seed = 123)
 
+#------------------------------------------------------------#
+#variable importance                                         #
+#------------------------------------------------------------#
 
-
-
-
-
+#extract model results to get permutation importance
+permutation_importance <- data.frame(variable = rownames(as.data.frame(final_model$variable.importance)),
+                                     importance = as.vector(final_model$variable.importance))
+  
+#plot importance
+ggplot(permutation_importance, aes(x = variable, y = importance)) +
+  geom_bar(stat="identity") +
+  ggtitle("permutation importance") +
+  theme_classic()
 
 
 
