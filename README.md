@@ -59,6 +59,7 @@ var pointBuffers = amazon_mammals.map(bufferPoints(500, true)); //true = square 
 
 // Paint FeatureCollection to GEE map for visualization.
 var fcVis = pointBuffers.draw({color: '800080', pointRadius: 10});
+Map.setCenter(-55.98, 4.02, 7) //coordinates & degree to zoom in
 Map.addLayer(fcVis);
 
 ```
