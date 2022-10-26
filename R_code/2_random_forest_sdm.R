@@ -6,9 +6,11 @@ library(tidyr); library(dplyr); library(spatialsample); library(sf); library(ran
 #------------------------------------------------------------------------#
 
 lulc <- read.csv("data/m_noctivagus_ter_mammals_lulc_cleaned_Oct2022.csv")
+climate <- read.csv("data/m_noctivagus_ter_mammals_climate_Oct2022.csv")
 amazon_basin_pnts <-  read.csv("data/m_noctivagus_ter_mammals_amazon_thinned_Oct22.csv")
 
-data0 <- left_join(amazon_basin_pnts, lulc, by = "row_code")
+covariates <- left_join(climate, lulc, by = "row_code")
+data0 <- left_join(amazon_basin_pnts, covariates, by = "row_code")
 
 #------------------------------------#
 #get fold id by k-means clustering   #
