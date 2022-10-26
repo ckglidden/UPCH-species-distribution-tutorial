@@ -6,7 +6,7 @@ library(tidyr); library(dplyr); library(spatialsample); library(sf)
 #------------------------------------------------------------------------#
 
 lulc <- read.csv("data/b_tridactylus_ter_mammals_lulc_cleaned_Oct2022.csv")
-amazon_basin_pnts <-  read.csv("data/b_tridactylus_ter_mammals_amazon_thinned_Oct22.csv.csv")
+amazon_basin_pnts <-  read.csv("data/b_tridactylus_ter_mammals_amazon_thinned_Oct22.csv")
 
 data0 <- left_join(amazon_basin_pnts, lulc, by = "row_code")
 
@@ -38,3 +38,5 @@ analysis_data <- merge(data0, splits_df, by = "row_code")
 
 #sanity check: check how many data points are in each fold
 table(analysis_data$fold)
+
+write.csv(analysis_data, "data/b_tridactylus_ter_mammals_finalData_Oct22.csv")
