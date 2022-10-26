@@ -123,16 +123,16 @@ ggplot() +
 st_bbox(ab) #get limits to put in raster
 r <- raster(xmn = -79.699771, xmx = -44.491086, ymn = -20.493752, ymx = 8.663513, res = 0.0083)
 
-#one point per grid cell -- 245 unique grid points distributed throughout BR
-s <- dismo::gridSample(pnts_ab[pnts_ab$scientificName == "Marmosops noctivagus", c("lon", "lat")], r, n=1) #136 obs for focal species
+#one point per grid cell
+s <- dismo::gridSample(pnts_ab[pnts_ab$scientificName == "Atelocynus microtis", c("lon", "lat")], r, n=1) #64 obs for focal species
 
-s0 <- dismo::gridSample(pnts_ab[pnts_ab$scientificName != "Marmosops noctivagus", c("lon", "lat")], r, n=1) #1874 obs for background species
+s0 <- dismo::gridSample(pnts_ab[pnts_ab$scientificName != "Atelocynus microtis", c("lon", "lat")], r, n=1) #6914 obs for background species
 
 #-------------------------------------------------------------#
 #Create background mask using probability sampling            #
 #-------------------------------------------------------------#
 
-background <- pnts_ab[pnts_ab$scientificName != "Marmosops noctivagus", ]
+background <- pnts_ab[pnts_ab$scientificName != "Atelocynus microtis", ] #exclude focal species
 
 bg_species_list <- unique(background$scientificName)
 
@@ -186,7 +186,7 @@ final_pass <- rbind(occ_points, bg_mask_df)
 
 #add in row identifier for GEE
 final_pass$row_code <- seq(1, nrow(final_pass), by = 1)
-write.csv(final_pass, "data/m_noctivagus_ter_mammals_amazon_thinned_Oct22.csv")
+write.csv(final_pass, "data/a_microtis_ter_mammals_amazon_thinned_Oct22.csv")
 
 #-------------------------------------------------------------#
 #final figure to visualize distribution of points             #
@@ -198,8 +198,8 @@ no_axis <- theme(axis.title=element_blank(),
                  axis.ticks=element_blank())
 
 ##for mapping purposes
-final_pass$species <- ifelse(final_pass$scientificName == "Marmosops noctivagus", 
-                             "Marmosops noctivagus", "background species")
+final_pass$species <- ifelse(final_pass$scientificName == "Atelocynus microtis", 
+                             "Atelocynus microtis", "background species")
 
 # Plot each species
 point_distribution <- ggplot() +
@@ -209,5 +209,5 @@ point_distribution <- ggplot() +
   theme_minimal() +
   no_axis
 
-ggsave("final_figures/m_noctivagus_sdm_point_distribution.png", point_distribution, dpi = 300)
+ggsave("final_figures/a_microtis_sdm_point_distribution.png", point_distribution, dpi = 300)
 

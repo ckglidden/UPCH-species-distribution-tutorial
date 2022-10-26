@@ -6,7 +6,7 @@ library(tidyr); library(dplyr); library(spatialsample); library(sf); library(ran
 #------------------------------------------------------------------------#
 
 lulc <- read.csv("data/m_noctivagus_ter_mammals_lulc_cleaned_Oct2022.csv")
-climate <- read.csv("data/m_noctivagus_ter_mammals_climate_Oct2022.csv")
+climate <- read.csv("data/m_noctivagus_ter_mammals_climate_Oct2022.csv"); climate <- climate[, c("row_code", "bio1_mean_annual_temp", "bio12_annual_precip")]
 amazon_basin_pnts <-  read.csv("data/m_noctivagus_ter_mammals_amazon_thinned_Oct22.csv")
 
 covariates <- left_join(climate, lulc, by = "row_code")
@@ -50,7 +50,11 @@ write.csv(analysis_data, "data/m_noctivagus_ter_mammals_finalData_Oct22.csv")
 #run spatial cv to evaluate model performance    #
 #------------------------------------------------#
 
-
+#first reduce data down to covariates of interest (or you could specify it in the formula below)
+analysis_data_v2 <- analysis_data[,c("presence", "fold", "bio1_mean_annual_temp", "bio12_annual_precip", 
+                                     "farming", "forest_formation", "other_non_vegetated", "flooded_forest",
+                                     "river_lake_ocean", "urban", "non_forested_natural", "grassland",
+                                     "wetland", "mining", "savannah_formation", "mangrove", "glacier")]
 
 #------------------------------------#
 #tune, train model,                  #
@@ -76,8 +80,8 @@ hypergrid_final <- data.frame(mtry = rep(NA, 3), #the number of variables to ran
   
 for(i in 1:3){ # run one iteration per fold
   
-  train <- analysis_data[analysis_data$fold != i, ]
-  test <- analysis_data[analysis_data$fold == i, ]
+  train <- analysis_data_v2[analysis_data_v2$fold != i, ]; train <- train[,-2]
+  test <- analysis_data_v2[analysis_data_v2$fold == i, ]; test <- test[,-2]
   
   #remove any rows with NAs bc RF can't handle missing data
   train_complete <- train[complete.cases(train),]
@@ -91,7 +95,7 @@ for(i in 1:3){ # run one iteration per fold
   # the function below creates a grid with all combinations of parameters
   
   hyper_grid <- expand.grid(
-    mtry       = seq(1, 4, by = 1), #the number of variables to randomly sample as candidates at each split
+    mtry       = seq(5, 15, by = 5), #the number of variables to randomly sample as candidates at each split
     node_size  = seq(3, 12, by = 3), #minimum number of samples within the terminal nodes
     sampe_size = c(.6, .70, .80), #the number of samples to train on
     num.trees  = c(500, 1000), #number of trees
@@ -103,7 +107,7 @@ for(i in 1:3){ # run one iteration per fold
     
     # train model
     model <- ranger(
-      formula = presence ~ farming + urban + flooded_forest + forest_formation + river_lake_ocean, 
+      formula = presence ~ ., 
       data = train_complete, 
       num.trees = hyper_grid$num.trees[j],
       mtry = hyper_grid$mtry[j],
@@ -123,7 +127,7 @@ for(i in 1:3){ # run one iteration per fold
   
   #train model
   train_model <- ranger(
-    formula = presence ~ farming + urban + flooded_forest + forest_formation + river_lake_ocean, 
+    formula = presence ~ ., 
     data = train_complete, 
     #use the first row of the grid as model parameters
     num.trees = hyper_grid2$num.trees[1],
@@ -166,8 +170,8 @@ model_performance <- data.frame(metric = names(rf_performance)[2:ncol(rf_perform
 #------------------------------------------------------------#
 
 final_model <- ranger(
-  formula = presence ~ farming + urban + flooded_forest + forest_formation + river_lake_ocean, 
-  data = analysis_data[complete.cases(analysis_data),], 
+  formula = presence ~ ., 
+  data = analysis_data_v2[,-2], 
   num.trees = 500,
   mtry = 2,
   min.node.size = 3,
