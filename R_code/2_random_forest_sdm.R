@@ -5,8 +5,8 @@ library(tidyr); library(dplyr); library(spatialsample); library(sf); library(ran
 #read in data & merge by row id  (or merge from output of above code)    #
 #------------------------------------------------------------------------#
 
-lulc <- read.csv("data/b_tridactylus_ter_mammals_lulc_cleaned_Oct2022.csv")
-amazon_basin_pnts <-  read.csv("data/b_tridactylus_ter_mammals_amazon_thinned_Oct22.csv")
+lulc <- read.csv("data/m_noctivagus_ter_mammals_lulc_cleaned_Oct2022.csv")
+amazon_basin_pnts <-  read.csv("data/m_noctivagus_ter_mammals_amazon_thinned_Oct22.csv")
 
 data0 <- left_join(amazon_basin_pnts, lulc, by = "row_code")
 
@@ -20,11 +20,11 @@ data0_sf <- st_as_sf(x = data0,
                              crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
 
 #identify groups of 5 clusters using the spatialsample package
-clusters <- spatial_clustering_cv(data0_sf, v = 5) #k-means clustering to identify 5 cross-validation folds
+clusters <- spatial_clustering_cv(data0_sf, v = 3) #k-means clustering to identify 5 cross-validation folds
 
 #for loop to create a dataframe that assigns a fold number to each data point
 splits_df <- c()
-for(i in 1:5){
+for(i in 1:3){
   new_df <- assessment(clusters$splits[[i]]) #extract points in fold number i
   new_df$fold <- i
   new_df <- new_df[,c("row_code", "fold")]
@@ -40,7 +40,7 @@ analysis_data <- merge(data0, splits_df, by = "row_code")
 table(analysis_data$fold)
 
 #write df to save for later
-write.csv(analysis_data, "data/b_tridactylus_ter_mammals_finalData_Oct22.csv")
+write.csv(analysis_data, "data/m_noctivagus_ter_mammals_finalData_Oct22.csv")
 
 
 #------------------------------------------------#
@@ -54,16 +54,16 @@ write.csv(analysis_data, "data/b_tridactylus_ter_mammals_finalData_Oct22.csv")
 #------------------------------------#
 
 #create empty dataframe to for loop to store results, one row for each fold
-rf_performance <- data.frame(model = rep("RF", 5),
-                             fold_id = 1:5,
-                             auc = rep(NA, 5),
-                             sensitivity = rep(NA, 5),
-                             specificity = rep(NA, 5),
-                             oob_error = rep(NA, 5),
-                             presence = rep(NA, 5), #number of presence points in the fold
-                             background = rep(NA, 5)) #number of bkg points in the fold
+rf_performance <- data.frame(model = rep("RF", 3),
+                             fold_id = 1:3,
+                             auc = rep(NA, 3),
+                             sensitivity = rep(NA, 3),
+                             specificity = rep(NA, 3),
+                             oob_error = rep(NA, 3),
+                             presence = rep(NA, 3), #number of presence points in the fold
+                             background = rep(NA, 3)) #number of bkg points in the fold
 
-for(i in 1:5){
+for(i in 1:3){ # run one iteration per fold
   
   train <- analysis_data[analysis_data$fold != i, ]
   test <- analysis_data[analysis_data$fold == i, ]
@@ -81,7 +81,7 @@ for(i in 1:5){
   
   hyper_grid <- expand.grid(
     mtry       = seq(1, 4, by = 1), #the number of variables to randomly sample as candidates at each split
-    node_size  = seq(3, 9, by = 3), #minimum number of samples within the terminal nodes
+    node_size  = seq(3, 12, by = 3), #minimum number of samples within the terminal nodes
     sampe_size = c(.6, .70, .80), #the number of samples to train on
     num.trees  = c(500, 1000), #number of trees
     OOB_RMSE   = 0
@@ -114,6 +114,7 @@ for(i in 1:5){
   train_model <- ranger(
     formula = presence ~ farming + urban + flooded_forest + forest_formation + river_lake_ocean, 
     data = train_complete, 
+    #use the first row of the grid as model parameters
     num.trees = hyper_grid2$num.trees[1],
     mtry = hyper_grid2$mtry[1],
     min.node.size = hyper_grid2$node_size[1],
@@ -173,6 +174,17 @@ ggplot(permutation_importance, aes(x = variable, y = importance)) +
   geom_bar(stat="identity") +
   ggtitle("permutation importance") +
   theme_classic()
+
+
+
+
+#------------------------------------------------------------#
+#pdps                                                        #
+#------------------------------------------------------------#
+
+
+
+
 
 
 

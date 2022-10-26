@@ -90,12 +90,12 @@ plot_species <- subset(pts_per_species, Freq > 83); names <- as.vector(plot_spec
 # Plot each species
 ggplot() +
   geom_sf(data=ab, color="#2D3E50", fill="lightgrey", size=.15, show.legend = FALSE) +
-  geom_point(data = subset(pnts_ab, scientificName == "Atelocynus microtis"), 
+  geom_point(data = subset(pnts_ab, scientificName == names[1]), 
              aes(x = lon, y = lat), alpha = 0.5) +
   theme_minimal() +
   no_axis
 
-#candidate species
+#candidate species for amazon terrestrial mammals 
 #Akodon dayi - 45 unique obs
 #Akodon subfuscus - 49 unique obs
 #Alouatta macconnelli - 87 unique obs
@@ -104,42 +104,17 @@ ggplot() +
 #Aotus vociferans - 75 unique obs
 #Artibeus concolor - 80 unique obs
 #Artibeus obscurus - 89 unique obs
-#Atelocynus microtis - 64 unique obs (short-eared dog) #3
-#Bradypus tridactylus - 189 unique obs (pale throated sloth) #1
+#Atelocynus microtis - 64 unique obs (short-eared dog) #2
+#Bradypus tridactylus - 189 unique obs (pale throated sloth)
 #Cormura brevirostris - 111 unique obs
 #Euryoryzomys nitidus - 87 unique obs
-#Marmosops noctivagus - 86 unique obs (white-bellied slender opossum) #2
+#Marmosops noctivagus - 86 unique obs (white-bellied slender opossum) #1
 #Philander andersoni - 63 unique obs
 #Rhinophylla fischerae - 85 unique obs
-#Sturnira magna - 67 unique obs
+#Sturnira magna - 67 unique obs #3
 #Uroderma magnirostrum - 79 obs
 
-#Abrothrix manni - 86 unique pts @ 1km res
-#Abrothrix sanborni - 91 unique pts @ 1km res
-# Artibeus lituratus - 169 pts - strongest candidate so far
-# Centronycteris centralis - 79 unique obs, in Peru
 
-#"Poecilotriccus albifacies" - 478, 59 unique points
-#"Corythopis torquatus" - 244, 65 unique points
-
-#"Crypturellus bartletti"
-#"Penelope jacquacu"
-# Akletos goeldii 
-# Automolus rufipileatus
-# Hemitriccus griseipectus
-# Malacoptila semicincta
-# Oneillornis salvini
-# Pyrrhura rupicola ##highest number of unique grid cells (1km = 115, 100m = 136)
-
-#Eubucco richardsoni - 62 unique
-#Lophotriccus eulophotes - 44 unique
-#Myrmoborus leucophrys - 70 unique
-#Oneillornis salvini - 88 unique
-#Poecilotriccus albifacies - 59 obs
-#Pteroglossus beauharnaisii - 91 obs
-#Ramphotrigon fuscicauda - 71 obs
-#Thamnophilus schistaceus - 60 points
-# Turdus lawrencii 57
 #-------------------------------------------------------------#
 #double check how many unique points in a 100m raster         #
 #-------------------------------------------------------------#
@@ -149,15 +124,15 @@ st_bbox(ab) #get limits to put in raster
 r <- raster(xmn = -79.699771, xmx = -44.491086, ymn = -20.493752, ymx = 8.663513, res = 0.0083)
 
 #one point per grid cell -- 245 unique grid points distributed throughout BR
-s <- dismo::gridSample(pnts_ab[pnts_ab$scientificName == "Bradypus tridactylus", c("lon", "lat")], r, n=1) #136 obs for focal species
+s <- dismo::gridSample(pnts_ab[pnts_ab$scientificName == "Marmosops noctivagus", c("lon", "lat")], r, n=1) #136 obs for focal species
 
-s0 <- dismo::gridSample(pnts_ab[pnts_ab$scientificName != "Bradypus tridactylus", c("lon", "lat")], r, n=1) #1874 obs for background species
+s0 <- dismo::gridSample(pnts_ab[pnts_ab$scientificName != "Marmosops noctivagus", c("lon", "lat")], r, n=1) #1874 obs for background species
 
 #-------------------------------------------------------------#
 #Create background mask using probability sampling            #
 #-------------------------------------------------------------#
 
-background <- pnts_ab[pnts_ab$scientificName != "Bradypus tridactylus", ]
+background <- pnts_ab[pnts_ab$scientificName != "Marmosops noctivagus", ]
 
 bg_species_list <- unique(background$scientificName)
 
@@ -187,7 +162,7 @@ bg_mask_sf <- st_as_sf(bg_longlat, coords = c("lon","lat"),
 
 # Random sample bg without replacement from weighted bias mask at (1.5x occ) multiplier
 set.seed(909)
-multiplier <- 1.5
+multiplier <- 2
 
 bg_mask_weights <- bg_mask_sf %>%
   mutate(weight = count/sum(count))
@@ -211,7 +186,7 @@ final_pass <- rbind(occ_points, bg_mask_df)
 
 #add in row identifier for GEE
 final_pass$row_code <- seq(1, nrow(final_pass), by = 1)
-write.csv(final_pass, "data/b_tridactylus_ter_mammals_amazon_thinned_Oct22.csv")
+write.csv(final_pass, "data/m_noctivagus_ter_mammals_amazon_thinned_Oct22.csv")
 
 #-------------------------------------------------------------#
 #final figure to visualize distribution of points             #
@@ -223,8 +198,8 @@ no_axis <- theme(axis.title=element_blank(),
                  axis.ticks=element_blank())
 
 ##for mapping purposes
-final_pass$species <- ifelse(final_pass$scientificName == "Bradypus tridactylus", 
-                             "Bradypus tridactylus", "background species")
+final_pass$species <- ifelse(final_pass$scientificName == "Marmosops noctivagus", 
+                             "Marmosops noctivagus", "background species")
 
 # Plot each species
 point_distribution <- ggplot() +
@@ -234,5 +209,5 @@ point_distribution <- ggplot() +
   theme_minimal() +
   no_axis
 
-ggsave("final_figures/b_tridactylus_sdm_point_distribution.png", point_distribution, dpi = 300)
+ggsave("final_figures/m_noctivagus_sdm_point_distribution.png", point_distribution, dpi = 300)
 
