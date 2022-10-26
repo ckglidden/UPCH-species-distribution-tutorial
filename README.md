@@ -334,13 +334,27 @@ model_performance <- data.frame(metric = names(rf_performance)[2:ncol(rf_perform
 #### Model interpretation :bar_chart: :chart_with_upwards_trend:
 
 ##### Variable importance
-> blurb about different variable importance (permutation importance, shapley, etc, etc), choose on for workshop
+_Step 12._ There are many ways to calculate variable importance. Here, we will use a intuitive and model agnostic measure of variable importance. In sum, we will calculate change in model performance when a focal variable is randomly permuted, which will tell us the degree to which the variable contributes to model performance and thus accuracy of model predictions. 
+
+
+```
+library(iml); library(ggplot2)
+
+X <- analysis_data[, c("farming", "urban", "flooded_forest", "forest_formation", "river_lake_ocean"]
+predictor <- Predictor$new(final_rf, data = X, y = analysis_data$presence)
+
+#get importance (or change in model performance when the variable is randomly permuted)
+imp <- FeatureImp$new(predictor, loss = "mae")
+
+#view table
+imp$results
+
+#plot importance
+plot(imp)
+
+```
 
 include variable importance plot?
-
-```
-code to quantify variable importance and plot it
-```
 
 ##### PDPs
 > blurb defining pdps
