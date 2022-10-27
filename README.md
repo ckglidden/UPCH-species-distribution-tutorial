@@ -387,3 +387,8 @@ distribution map?
 ```
 code for generating distribution map based on geoTIFFs of prediction variables? might need to create it for a small area, otherwise files might be too big for github
 ```
+
+###Challenge questions
+1. How would you add uncertainty to variable importance, functional relationships (pdps), or prediction maps?
+2. Try using GEE to add additional climate or LULC covariates. How does you model perfromance and interpretation change?
+3. Pick a new focal species to create an SDM. You will have to use the "notThinned" datasets to select a focal species and create background points.
