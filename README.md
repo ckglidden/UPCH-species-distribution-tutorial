@@ -101,7 +101,7 @@ var cmi_min = ee.Image('users/cglidden/CHELSA_1981_2010/CHELSA_cmi_min_1981-2010
             .reduce(ee.Reducer.mean())
             .rename('cmi_min');
 
-///compile image to export both variables one csv
+///compile image to export both variables in one csv
 var final_image = bio13_precip_wettest_month.addBands([cmi_min])
 
   
