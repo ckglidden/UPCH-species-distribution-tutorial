@@ -404,14 +404,8 @@ for(i  in  1:3){  #  run  one  iteration  per  fold
 
 }
 
-#------------------------------------------------------------#
-#calculate  average  out  of  sample  performance           #
-#------------------------------------------------------------#
-
-model_performance  <-  data.frame(metric  =  names(rf_performance)[2:ncol(rf_performance)],  
-                                                                mean_metric  =  colMeans(rf_performance[2:ncol(rf_performance)]))
-
 ```
+**include model performance table**
 
 &nbsp;  
 
@@ -466,7 +460,9 @@ ggplot(permutation_importance, aes(x  =  variable, y  =  importance))  +
 
 ```
 
-include variable importance plot...
+<img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/variable_importance_plot.png>
+
+**Figure x** variable importance
 
 &nbsp;  
 
@@ -507,6 +503,9 @@ ggplot(pd_df, aes(x  =  value, y=  yhat))  +
     facet_wrap(~variable, scales  =  "free")  +
     theme_bw()
 ```
+<img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/pdp_plot.png>
+
+**Figure x** pdps...
 
 &nbsp;  
 
