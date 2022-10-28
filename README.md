@@ -73,7 +73,7 @@ _Step 8._ Exporting to a table...
 
 
 #### Downloading climate data :thermometer: </br>
-_Step 9._ Species distribution are usually, at least in part, dictated by interations between land cover and climate. We will use the [CHELSA dataset](https://chelsa-climate.org/) to add climatologies to our model. The CHELSA data is at a 1km^2 resolution, which is why we scaled the MAPBIOMAS data up to 1km. We will use the same feature collection from steps 6-8. A GEE script can be found [here](https://code.earthengine.google.com/14b1a32976d3097b5eca6be97cf84559).
+_Step 9._ Species distributions are usually, at least in part, dictated by interations between land cover and climate. We will use the [CHELSA dataset](https://chelsa-climate.org/) to add climatologies to our model. The CHELSA data is at a 1km^2 resolution, which is why we scaled the MAPBIOMAS data up to 1km. We will use the same feature collection from steps 6-8. A GEE script can be found [here](https://code.earthengine.google.com/14b1a32976d3097b5eca6be97cf84559).
 
 ```
 /////CHELSA climatologies
@@ -108,7 +108,7 @@ Export.table.toDrive({
 ```
 
 
-_Step 10._ Skip actually running the GEE code for now and download the ["a_chamek_ter_mammals_lulc_Oct22.csv" file](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_lulc_Oct22.csv.csv) of pre-downloaded data from the data folder.
+_Step 10._ Skip actually running the GEE code for now and download the ["a_chamek_ter_mammals_lulc_Oct22.csv" file](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_lulc_Oct22.csv) and of ["a_chamek_ter_mammals_climate_Oct22.csv" file](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_climate_Oct22.csv) pre-downloaded data from the data folder.
 
 
 #### Clean covariate data :broom:
