@@ -468,6 +468,8 @@ ggplot(permutation_importance, aes(x  =  variable, y  =  importance))  +
 
 include variable importance plot...
 
+&nbsp;  
+
 ##### PDPs
 > blurb defining pdps
 
