@@ -10,11 +10,17 @@
 3. [Machine-learning based SDMs](https://github.com/ckglidden/UPCH-species-distribution-tutorial/edit/main/README.md#3-machine-learning-based-sdms)
 
 
+&nbsp;  
+&nbsp;  
+
+
 ### 1. Presence-background species distribution models
 > For this model we are using _Ateles chamek_ (the Peruvian spider moneky) as a focal species and all other terrestrial mammals as background species. The background species helps to  us to understand the difference between the focal species and the average landscape over which mammals are sampled (thus accounting for sampling bias in the occurrence points). Point data was downloaded from GBIF using the ["0_download_gbif_points.R" code](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/0_download_gbif_points.R). 
 
 ![Figure 1. Distribution of points](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/a_chamek_sdm_point_distribution.png)
 **Figure 1.** Distribution of points for the focal species (_A. chamek_) (blue) and background species (grey) thinned to 1km grid cells across the Amazon Basin. The number of background points was further reduced by using a background point probability mask and sampling 3 * the no. of occurrence points. The code used to create the probability surface and sample the background points is in the ["0_download_gbif_points.R" code](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/0_download_gbif_points.R). An example of using a background mask to sample background points can be found in [Moyes et al. 2016](https://parasitesandvectors.biomedcentral.com/articles/10.1186/s13071-016-1527-0).
+
+&nbsp;  
 
 #### Uploading point data to GEE :mosquito:
 >Once you have your occurrence data downloaded, upload it to GEE as a csv. Make sure the dataframe has numerical longitude (x) and latitude (y) coordinates (in decimal degrees) as separate columns. Make sure there is a row identifier to match the points to bind multiple datasets after downloading geospatial data. 
@@ -25,8 +31,13 @@ _Step 2._ Upload occurrence dataset as a GEE feature collections.</br>
 <img src=https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/GEE_csv_asset.png width="250" height="380"></br>
 **Figure 2.** Navigation for uploading csv as a feature collection.
 
+&nbsp;  
+&nbsp;  
+
 ### 2. Environmental covariate data
 > Species distribution models model the probability a species occurs in pixel _x_ given the environmental conditions (covariates) in pixel _x_. Here, we will download land-use / land-cover and climate data to use as environmental covariates in our model. For the purposes of this tutorial, we will run the initial model with a small number of covariates. 
+
+&nbsp;  
 
 #### Downloading MAPBIOMAS data :earth_americas: </br>
 
@@ -71,6 +82,7 @@ _Step 7._ Calculating area..._A. chamek_ typically live in lowland forests but a
 
 _Step 8._ Exporting to a table...
 
+&nbsp;  
 
 #### Downloading climate data :thermometer: </br>
 _Step 9._ Species distributions are usually, at least in part, dictated by interations between land cover and climate. We will use the [CHELSA dataset](https://chelsa-climate.org/) to add climatologies to our model. The CHELSA data is at a 1km^2 resolution, which is why we scaled the MAPBIOMAS data up to 1km. We will use the same feature collection from steps 6-8. A GEE script can be found [here](https://code.earthengine.google.com/14b1a32976d3097b5eca6be97cf84559).
@@ -110,6 +122,7 @@ Export.table.toDrive({
 
 _Step 10._ Skip actually running the GEE code for now and download the ["a_chamek_ter_mammals_lulc_Oct22.csv" file](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_lulc_Oct22.csv) and of ["a_chamek_ter_mammals_climate_Oct22.csv" file](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_climate_Oct22.csv) pre-downloaded data from the data folder.
 
+&nbsp;  
 
 #### Clean covariate data :broom:
 
@@ -200,12 +213,18 @@ chart.Correlation(data0[7:ncol(data0)],
 <img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/lulc_correlation.png></br>
 **Figure 5.** Pearson's correlation coeffecients of variables.
 
+&nbsp;  
+
 ### Challenge Questions###
 1. Try using GEE to add additional climate or LULC covariates.
+
+&nbsp;  
+&nbsp;  
 
 ### 3. Machine-learning based SDMs 
 > short blurb on different algorithms that have been used and why we are using one specific one for the workshop (RF?)
 
+&nbsp;  
 
 #### Model tuning & testing using spatial cross-validation :white_check_mark:
 
@@ -382,6 +401,8 @@ model_performance  <-  data.frame(metric  =  names(rf_performance)[2:ncol(rf_per
 
 ```
 
+&nbsp;  
+
 #### Training of final model :woman_technologist:
 _Step 12._ Now train the final model that will be used for interpretation and prediction. Below, I used the average hyperpameters from the tuning steps.
 
@@ -405,6 +426,8 @@ final_model  <-  ranger(
     seed  =  123)
 
 ``` 
+
+&nbsp;  
 
 #### Model interpretation :bar_chart: :chart_with_upwards_trend:
 
@@ -479,6 +502,8 @@ distribution map?
 ```
 code for generating distribution map based on geoTIFFs of prediction variables? might need to create it for a small area, otherwise files might be too big for github
 ```
+
+&nbsp; 
 
 ### Challenge questions
 1. How would you add uncertainty to variable importance, functional relationships (pdps), or prediction maps?
