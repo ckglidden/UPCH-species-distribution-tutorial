@@ -1,7 +1,7 @@
 ###cleaning mapbiomas data for SDM
 
 #load libraries
-library(tidyr); library(dplyr); library(PerformanceAnalytics)
+library(tidyr); library(dplyr); library(PerformanceAnalytics); library(spatialsample); library(sf)
 
 #-----------------------------------#
 #read in datasets                   #
