@@ -1,54 +1,6 @@
 ####random  forest  species  distribution  models
 library(tidyr);library(dplyr);library(spatialsample);library(sf);library(ranger)
 
-#------------------------------------------------------------------------#
-#read  in  data  &  merge  by  row  id    (or  merge  from  output  of  above  code)        #
-#------------------------------------------------------------------------#
-
-lulc <- read.csv("data/a_chamek_ter_mammals_lulc_cleaned_Oct2022.csv")
-climate <- read.csv("data/a_chamek_ter_mammals_climate_Oct2022.csv"); climate <- climate[  c("row_code", "bio10_temp_warmest_qt", "bio13_precip_wettest_month", "cmi_min")]
-amazon_basin_pnts <-  read.csv("data/a_chamek_ter_mammals_amazon_thinned_Oct22.csv")
-
-covariates <- left_join(climate, lulc, by = "row_code")
-data0 <- left_join(amazon_basin_pnts, covariates, by = "row_code")
-
-#for many ML algorithms  you should make sure your reponse variables are not grouped in the dataframe (e.g.  all 1s and 0s next to each other)
-data0 <- data0[sample(1:nrow(data0)), ]
-
-#--------------------------------------------#
-#get  fold  id  by  k-means  clustering      #
-#--------------------------------------------#
-
-#convert  analysis_data  to  a  spatial  object
-data0_sf  <-  st_as_sf(x  =  data0,
-                       coords  =  c("lon", "lat"),
-                       crs  =  "+proj=longlat +datum=WGS84 +ellps=WGS84")
-
-#identify  groups  of  5  clusters  using  the  spatialsample  package
-set.seed(99)  #set  seed  to  get  same  split  each  time
-clusters  <-  spatial_block_cv(data0_sf, 
-                               method = "random", n = 30, #method for how blocks are oriented in space & number of blocks
-                               relevant_only = TRUE,  v = 3)  #k-means  clustering  to  identify  cross-validation  folds  (3  is  too  few  to  be  robust  but  using  here  to  save  time)
-
-#for  loop  to  create  a  dataframe  that  assigns  a  fold  number  to  each  data  point
-splits_df  <-  c()
-for(i  in  1:3){
-    new_df  <-  assessment(clusters$splits[[i]])  #extract  points  in  fold  number  i
-    new_df$fold  <-  i
-    new_df  <-  new_df[  c("row_code", "fold")]
-    splits_df  <-  rbind(splits_df, new_df)  #bind  all  points  x  fold  id  together
-}
-
-splits_df  <-  st_drop_geometry(splits_df)  #drop  shapefiles
-
-#final  data  -  merge  cluster  id  to  final  dataset  for  analysis
-analysis_data  <-  merge(data0, splits_df, by  =  "row_code")
-
-#sanity  check:  check  how  many  data  points  are  in  each  fold
-table(analysis_data$fold)
-
-#write  df  to  save  for  later
-write.csv(analysis_data, "data/a_chamek_ter_mammals_finalData_Oct22.csv")
 
 
 #------------------------------------------------#
@@ -56,12 +8,18 @@ write.csv(analysis_data, "data/a_chamek_ter_mammals_finalData_Oct22.csv")
 #------------------------------------------------#
 
 #first  reduce  data  down  to  covariates  of  interest  (or  you  could  specify  it  in  the  formula  below)
-analysis_data_v2  <-  analysis_data[  c("presence", "fold", "bio10_temp_warmest_qt", "bio13_precip_wettest_month", "cmi_min",
-                                        "mean_forest",  "mean_farming", "mean_urban",
-                                        "diff_forest_formation")]
+# analysis_data_v2  <-  analysis_data[  c("presence", "fold", "bio10_temp_warmest_qt", "bio13_precip_wettest_month", "cmi_min",
+#                                         "mean_forest",  "mean_farming", "mean_urban",
+#                                         "diff_forest_formation")]
+
+analysis_data_v2  <-  analysis_data[  c("presence", "fold", "bio13_precip_wettest_month", "cmi_min",
+                                        "mean_forest",  "mean_farming", "diff_forest_formation")]
+
+#for many ML algorithms  you should make sure your response variables are not grouped in the data-frame (e.g.  all 1s and 0s next to each other)
+analysis_data_v2 <- analysis_data_v2[sample(1:nrow(analysis_data_v2)), ]
 
 #------------------------------------#
-#tune, train, model                  # fix commas and spaces
+#tune, train, model                  #
 #------------------------------------#
 
 #create  empty  dataframe  to  for  loop  to  store  results    one  row  for  each  fold
@@ -97,7 +55,7 @@ for(i  in  1:3){  #  run  one  iteration  per  fold
     #  the  function  below  creates  a  grid  with  all  combinations  of  parameters
     
     hyper_grid  <-  expand.grid(
-        mtry =  seq(1, 6, by  =  2),    #the  number  of  variables  to  randomly  sample  as  candidates  at  each  split
+        mtry =  seq(1, 3, by  =  1),    #the  number  of  variables  to  randomly  sample  as  candidates  at  each  split
         node_size =  seq(1,4, by  =  1),    #shallow trees
         sampe_size  =  c(.6, .70, .80),    #the  number  of  samples  to  train  on
         OOB_RMSE =  0
@@ -156,6 +114,7 @@ for(i  in  1:3){  #  run  one  iteration  per  fold
     rf_performance[i, "presence"]  <-  nrow(subset(test, presence  ==  1))
     rf_performance[i, "background"]  <-  nrow(subset(test, presence  ==  0))
     
+    #save hypergrid results to use for final model
     hypergrid_final[i, "mtry"]  <-  hyper_grid2$mtry[1]
     hypergrid_final[i, "node_size"]  <-  hyper_grid2$node_size[1]
     hypergrid_final[i, "sampe_size"]  <-  hyper_grid2$sampe_size[1]
@@ -201,7 +160,6 @@ ggplot(permutation_importance, aes(x  =  variable, y  =  importance))  +
     ggtitle("permutation  importance")  +
     coord_flip()  +
     theme_classic()
-
 
 
 
