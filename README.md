@@ -11,22 +11,22 @@
 
 
 ### 1. Presence-background species distribution models
-> For this model we are using _M. noctivagus_ as a focal species and all other terrestrial mammals as background species. The background species helps to  us to understand the difference between the focal species and the average landscape over which mammals are sampled (thus accounting for sampling bias in the occurrence points). Point data was downloaded from GBIF using the ["0_download_gbif_points.R" code](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/0_download_gbif_points.R). 
+> For this model we are using _Ateles chamek_ (the Peruvian spider moneky) as a focal species and all other terrestrial mammals as background species. The background species helps to  us to understand the difference between the focal species and the average landscape over which mammals are sampled (thus accounting for sampling bias in the occurrence points). Point data was downloaded from GBIF using the ["0_download_gbif_points.R" code](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/0_download_gbif_points.R). 
 
-![Figure 1. Distribution of points](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/m_noctivagus_sdm_point_distribution.png)
-**Figure 1.** Distribution of the focal species (_M. noctivagus_) and background species thinned to 1km grid cells. The number of background points was further reduced by using a background point probability mask and sampling 2 * the no. of occurrence points (86 _M. noctivagus_ points; 172 bkg points). The code used to create the probability surface and sample the background points is in the ["0_download_gbif_points.R" code](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/0_download_gbif_points.R). An example of using a background mask to sample background points can be found in [Moyes et al. 2016](https://parasitesandvectors.biomedcentral.com/articles/10.1186/s13071-016-1527-0).
+![Figure 1. Distribution of points](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/a_chamek_sdm_point_distribution.png)
+**Figure 1.** Distribution of points for the focal species (_A. chamek_) (blue) and background species (grey) thinned to 1km grid cells across the Amazon Basin. The number of background points was further reduced by using a background point probability mask and sampling 3 * the no. of occurrence points. The code used to create the probability surface and sample the background points is in the ["0_download_gbif_points.R" code](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/0_download_gbif_points.R). An example of using a background mask to sample background points can be found in [Moyes et al. 2016](https://parasitesandvectors.biomedcentral.com/articles/10.1186/s13071-016-1527-0).
 
 #### Uploading point data to GEE :mosquito:
 >Once you have your occurrence data downloaded, upload it to GEE as a csv. Make sure the dataframe has numerical longitude (x) and latitude (y) coordinates (in decimal degrees) as separate columns. Make sure there is a row identifier to match the points to bind multiple datasets after downloading geospatial data. 
 
-_Step 1._ Download occurrence dataset from the data folder: [m_ noctivagus_ter_mammals_amazon_thinned_Oct22.csv](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/m_noctivagus_ter_mammals_amazon_thinned_Oct22.csv)
+_Step 1._ Download occurrence dataset from the data folder: [a_chamek_ter_mammals_amazon_thinned_Oct22.csv](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_amazon_thinned_Oct22.csv)
 
 _Step 2._ Upload occurrence dataset as a GEE feature collections.</br>
 <img src=https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/GEE_csv_asset.png width="250" height="380"></br>
 **Figure 2.** Navigation for uploading csv as a feature collection.
 
 ### 2. Environmental covariate data
-> Species distribution models model the probability a species occurs in pixel _x_ given the environmental conditions (covariates) in pixel _x_. Here, we will download land-use / land-cover data to use as environmental covariates in our model. 
+> Species distribution models model the probability a species occurs in pixel _x_ given the environmental conditions (covariates) in pixel _x_. Here, we will download land-use / land-cover and climate data to use as environmental covariates in our model. 
 
 #### Downloading MAPBIOMAS data :earth_americas: </br>
 
@@ -63,15 +63,15 @@ Map.setCenter(-55.98, 4.02, 7) //coordinates & degree to zoom in
 Map.addLayer(fcVis);
 
 ```
-
-[Caroline's GEE code](https://code.earthengine.google.com/4e4104e7bb0bac0ab475e34d7681295e)  -- **break this into more steps and include code chunks below** </br>
+<img src=https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/gee_feature_collection.png></br>
+**Figure 4**. The feature collection (1km square buffers around each point) visualized using the _Map.addLayer(fcVis)_ function from the code above. </br>
 _Step 8._ Calculating area...
 
 
 _Step 9._ Exporting to a table...
 
 
-_Step 10._ Skip actually running the GEE code for now and download the ["m_noctivagus_ter_mammals_lulc_Oct22.csv" file](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/m_noctivagus_ter_mammals_lulc_Oct22.csv.csv) of pre-downloaded data from the data folder.
+_Step 10._ Skip actually running the GEE code for now and download the ["m_noctivagus_ter_mammals_lulc_Oct22.csv" file](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_lulc_Oct22.csv.csv) of pre-downloaded data from the data folder.
 
 
 #### Clean MAPBIOMAS data :broom:
@@ -159,14 +159,14 @@ write.csv(mapbiomas_mean_wide, "data/m_noctivagus_ter_mammals_lulc_cleaned_Oct20
                  
 ```
 <img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/lulc_correlation.png></br>
-**Figure 4.** Pearson's correlation coeffecients of variables.
+**Figure 5.** Pearson's correlation coeffecients of variables.
 
 ### 3. Machine-learning based SDMs 
 > short blurb on different algorithms that have been used and why we are using one specific one for the workshop (RF?)
 
 
 #### Model tuning & testing using spatial cross-validation :white_check_mark:
-_Step 10._  Here we will split our data in 5 folds (5 subsets) for 5-fold cross validation. It is important to test the perfomance of your model using a hold-out test set. This allows you to evaluate if your model is predicting generazliable patterns, or if it only learning the traing data (and thus "overfitting"). One way to test out-of-sample model performance is using k-fold cross validation. K-fold cross validation splits the data into k folds, it then trains and tests the model k times (where, for each iteration, one fold is a hold out fold and the remaning folds (k-1) are used for training the model). K-fold cross validation helps to test model performance across different subsets of data where the subsets are sampled without replacement. For many applications of species distribution modeling, it is ideal to use spatial cross-validation where folds are separated in space so to avoid issues of autocorrelation that arise from test and training points being very close to each other. See the figure 5. for a visual explanation. Here we will use the R package blockCV. Methods for splitting folds can be dependent on your data and study questions. View the [blockCV paper (Valavi et al. 2021)](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.13107) and the [_spatialsample_](https://spatialsample.tidymodels.org/) rpackage to learn of different ways to split data. Below we will use k-means clustering because it is quick to implement.</br>
+_Step 10._  Here we will split our data in 5 folds (5 subsets) for 5-fold cross validation. It is important to test the perfomance of your model using a hold-out test set. This allows you to evaluate if your model is predicting generazliable patterns, or if it only learning the traing data (and thus "overfitting"). One way to test out-of-sample model performance is using k-fold cross validation. K-fold cross validation splits the data into k folds, it then trains and tests the model k times (where, for each iteration, one fold is a hold out fold and the remaning folds (k-1) are used for training the model). K-fold cross validation helps to test model performance across different subsets of data where the subsets are sampled without replacement. For many applications of species distribution modeling, it is ideal to use spatial cross-validation where folds are separated in space so to avoid issues of autocorrelation that arise from test and training points being very close to each other. See the figure 5. for a visual explanation. Here we will use the R package _spatialsample_. Methods for splitting folds can be dependent on your data and study questions. View the [blockCV paper (Valavi et al. 2021)](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.13107) and the [_spatialsample_](https://spatialsample.tidymodels.org/) rpackage to learn of different ways to split data. Below we will use block clustering because it is quick to implement.</br>
 
 <img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/spatialcv_visualization.png></br>
 **Figure 5.** Visualization of spatial partitioning versus random test versus train set. Figure from towards data science ["Spatial CV Using Sickit-learn"](https://towardsdatascience.com/spatial-cross-validation-using-scikit-learn-74cb8ffe0ab9).
