@@ -215,7 +215,7 @@ chart.Correlation(data0[7:ncol(data0)],
 
 &nbsp;  
 
-### Challenge Questions###
+### Challenge Questions
 1. Try using GEE to add additional climate or LULC covariates.
 
 &nbsp;  
