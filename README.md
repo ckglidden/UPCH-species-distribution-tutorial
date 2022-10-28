@@ -43,8 +43,8 @@ _Step 6._ We will build our species distribution model at a 1km^2 resolution. MA
 
 
 ```
-//read in csv of points (lat, long, & a row identifier)
-var amazon_mammals = ee.FeatureCollection('users/cglidden/m_noctivagus_ter_mammals_amazon_thinned_Oct22'); 
+//read in csv of points (make sure it has lat, long, & a row identifier)
+var amazon_mammals = ee.FeatureCollection('users/cglidden/a_chamek_ter_mammals_amazon_thinned_Oct22'); 
 
 /////functions to create buffer zone around each occurence point
 function bufferPoints(radius, bounds) {
@@ -57,9 +57,10 @@ function bufferPoints(radius, bounds) {
 /////Implement function to make each point is a 1km^2 polygon
 var pointBuffers = amazon_mammals.map(bufferPoints(500, true)); //true = square pixel
 
+
 // Paint FeatureCollection to GEE map for visualization.
 var fcVis = pointBuffers.draw({color: '800080', pointRadius: 10});
-Map.setCenter(-55.98, 4.02, 7) //coordinates & degree to zoom in
+Map.setCenter(-69.60, -12.39, 10) //coordinates & degree to zoom in
 Map.addLayer(fcVis);
 
 ```
