@@ -44,6 +44,8 @@ _Step 2._ Upload occurrence dataset as a GEE feature collections.</br>
 <img src=https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/mapbiomas_amazonia_example.png width="900" height="550"></br>
 **Figure 3.** The MAPBIOMAS Panamazonia platform.
 
+&nbsp;  
+
 _Step 3._ Explore the [MAPBIOMAS website](https://plataforma.panamazonia.mapbiomas.org/)
 
 _Step 4._ Identify LULC categories / datasets of interest using the [MAPBIOMAS legend](https://s3.amazonaws.com/amazonia.mapbiomas.org/leyenda/C%C3%B3digo_de_la_Leyenda_-_colecci%C3%B3n_3.pdf) (make sure it is the correct legend for the MAPBIOMAS assett)
@@ -77,6 +79,9 @@ Map.addLayer(fcVis);
 ```
 <img src=https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/gee_feature_collection.png></br>
 **Figure 4**. The feature collection (1km square buffers around each point) visualized using the _Map.addLayer(fcVis)_ function from the code above. </br>
+
+&nbsp;  
+
 _Step 7._ Calculating area..._A. chamek_ typically live in lowland forests but are listed as endangered due to habitat loss. For our initial model we will include lulc variables related to forest cover and farming....
 
 
@@ -119,6 +124,7 @@ Export.table.toDrive({
 });
 ```
 
+&nbsp;  
 
 _Step 10._ Skip actually running the GEE code for now and download the ["a_chamek_ter_mammals_lulc_Oct22.csv" file](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_lulc_Oct22.csv) and of ["a_chamek_ter_mammals_climate_Oct22.csv" file](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_climate_Oct22.csv) pre-downloaded data from the data folder.
 
@@ -127,6 +133,8 @@ _Step 10._ Skip actually running the GEE code for now and download the ["a_chame
 #### Clean covariate data :broom:
 
 R code for the following sections can be found in the ["1_cleaning_data.R"](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/1_cleaning_data.R)
+
+&nbsp;  
 
 _Step 11._ Using the data downloaded in step 10 and the code below, we will relabel MAPBIOMAS classes to make it easier to view results. We'll then aggregate LULC data by taking the mean LULC from 2001-2020. Since _A. chamek_ is affected by deforestation we will also look at difference in forest cover between 2001-2020. We will then merge the lulc data with the occurrence data and climate data. The climate data is exported from GEE in an immediately useable form. Note: Given the pace of LULC change, this is a really coarse way of aggregating the data and we likely loose a lot of signal.  
 
@@ -193,6 +201,8 @@ covariates <- left_join(climate, mapbiomas_mean_diff, by = "row_code")
 data0 <- left_join(amazon_basin_pnts, covariates, by = "row_code")
 
 ```
+
+&nbsp;  
 
 _Step 9._ Using the code below, we will now clean our LULC data a bit more by removing highly colinear variables. While machine learning can handle multicolinearity when making predictions, removing colinear variables can still be helpful for model interpretation. The correlation value depends on your questions and dataset, but we will use a 0.7 correlation cutoff in the code below. We will use a pair-wise analysis but another option is a variable inflation analysis (or you can use both).
 
@@ -273,6 +283,8 @@ table(analysis_data$fold)
 write.csv(analysis_data, "data/a_chamek_ter_mammals_finalData_Oct22.csv")
 
 ```
+
+&nbsp;  
 
 _Step 11._ Now we train the model on each set of k-1 folds and test it on the holdout fold. For each iteration, we tune the randomForest model to optimize model performance. The tuning step can also be used to prevent over-fitting, depending on your dataset and the parameter values you search over. There are different methods for tuning a machine-learning model. Below we use a [hypergrid search](https://afit-r.github.io/random_forests#tune) and select the final parameters based on the combination that yields the best model performance. If you had trouble running _Step 10._ you can download the ["a_chamek_ter_mammals_finalData_Oct22.csv"](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_finalData_Oct22.csv) to use for the next few steps. R code for the following sections can be found in the ["2_random_forest_sdm.R"](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/2_random_forest_sdm.R) </br>
 
@@ -493,6 +505,8 @@ ggplot(pd_df, aes(x  =  value, y=  yhat))  +
     facet_wrap(~variable, scales  =  "free")  +
     theme_bw()
 ```
+
+&nbsp;  
 
 ##### Model predictions
 > blurb about how to create predictions and interpretation of predictions
