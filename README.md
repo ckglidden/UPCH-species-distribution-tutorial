@@ -1,7 +1,7 @@
 # UPCH geospatial analysis workshop
 
 ## Species distribution modeling tutorial
-> This github page includes a tutorial of how to model the distribution of _Marmosops noctivagus_ (the white-bellied slender opposum) throughout the Amazon Basin using MAPBIOMAS land-use/land-cover data.
+> This github page includes a tutorial of how to model the distribution of _Ateles chamek_ (the Peruvian spider monkey) throughout the Amazon Basin using MAPBIOMAS land-use/land-cover data and CHELSA climate data.
 
 1. [Presence-background species distribution models](https://github.com/ckglidden/UPCH-species-distribution-tutorial/edit/main/README.md#1-presence-background-species-distribution-models)
 
@@ -52,11 +52,11 @@ _Step 4._ Identify LULC categories / datasets of interest using the [MAPBIOMAS l
 
 _Step 5._ Explore [MAPBIOMAS GEE code](https://github.com/mapbiomas-brazil/user-toolkit). Many of the functions you need to work with MAPBIOMAS data has pre-written code, you just need to adapt it to your dataset.
 
-_Step 6._ We will build our species distribution model at a 1km^2 resolution. MAPBIOMAS is available at a finer scale resolution (30m) so it is possible to create the model at a finer spatial resolution. Note: the resolution of all covariates should be equal to the resolution of the coarsest variable (given that the precision of your occurrence point is as or more precise than that resolution). The data we fed into GEE are points. We will create a 1km buffer around each point (step 6) and then use the remainder of the code to calculate area of each land class per grid cell (step 7-8). A GEE script for steps 6-8 can be found [here](https://code.earthengine.google.com/8fc7e788d5971db28c29447100bdb778).
+_Step 6._ We will build our species distribution model at a 1km^2 resolution. MAPBIOMAS is available at a finer scale resolution (30m) so it is possible to create the model at a finer spatial resolution. Note: the resolution of all covariates should be equal to the resolution of the coarsest variable (given that the precision of your occurrence point is as or more precise than that resolution). The data we fed into GEE are points. We will create a 1km buffer around each point (step 6) and then calculate area of each land class per grid cell (step 7-8). A GEE script for steps 6-8 can be found [here](https://code.earthengine.google.com/8fc7e788d5971db28c29447100bdb778).
 
 
 ```
-//read in csv of points (make sure it has lat, long, & a row identifier)
+//call csv of points (make sure it has lat, long, & a row identifier)
 var amazon_mammals = ee.FeatureCollection('users/cglidden/a_chamek_ter_mammals_amazon_thinned_Oct22'); 
 
 /////functions to create buffer zone around each occurence point
@@ -78,14 +78,14 @@ Map.addLayer(fcVis);
 
 ```
 <img src=https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/gee_feature_collection.png></br>
-**Figure 4**. The feature collection (1km square buffers around each point) visualized using the _Map.addLayer(fcVis)_ function from the code above. </br>
+**Figure 4**. Part of the feature collection (1km square buffers around each point) visualized using the _Map.addLayer(fcVis)_ function from the code above. </br>
 
 &nbsp;  
 
-_Step 7._ Calculating area..._A. chamek_ typically live in lowland forests but are listed as endangered due to habitat loss. For our initial model we will include lulc variables related to forest cover and farming....
+_Step 7._ We will now calculate area per each feature (point + buffer) per year in the study period (2001-2020) in the feature collection. _A. chamek_ typically live in lowland forests but are listed as endangered due to habitat loss. For our initial model we will include lulc variables related to forest cover and farming.
 
 
-_Step 8._ Exporting to a table...
+_Step 8._ We will export a table with land class area per year per point as a csv to our GEE folder. You can also export the table as a shape file. 
 
 &nbsp;  
 
@@ -113,8 +113,8 @@ var final_image = bio13_precip_wettest_month.addBands([cmi_min])
 ////export table to drive
 Export.table.toDrive({
   collection: final_image.reduceRegions({
-    collection: pointBuffers, //now get mean climatology per pointBuffer and export to table
-    reducer: ee.Reducer.mean(),
+    collection: pointBuffers,
+    reducer: ee.Reducer.mean(), //now get mean climatology per pointBuffer and export to table
     scale: 1000, //1km resolution
     tileScale: 16
     }),
@@ -126,7 +126,7 @@ Export.table.toDrive({
 
 &nbsp;  
 
-_Step 10._ Skip actually running the GEE code for now and download the ["a_chamek_ter_mammals_lulc_Oct22.csv" file](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_lulc_Oct22.csv) and of ["a_chamek_ter_mammals_climate_Oct22.csv" file](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_climate_Oct22.csv) pre-downloaded data from the data folder.
+_Step 10._ Skip actually running the GEE code for now and download the ["a_chamek_ter_mammals_lulc_Oct22.csv" file](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_lulc_Oct22.csv) and th ["a_chamek_ter_mammals_climate_Oct22.csv" file](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_climate_Oct22.csv) pre-downloaded data from the data folder.
 
 &nbsp;  
 
@@ -147,14 +147,18 @@ library(tidyr); library(dplyr)
 #-----------------------------------#
 
 mapbiomas <- read.csv("data/a_chamek_ter_mammals_lulc_Oct2022.csv")
-climate <- read.csv("data/a_chamek_ter_mammals_climate_Oct2022.csv"); climate <- climate[  c("row_code", "bio13_precip_wettest_month", "cmi_min")]
+
+climate <- read.csv("data/a_chamek_ter_mammals_climate_Oct2022.csv")
+#subset climate data to variables of interest (not necessary but makes the final dataset cleaner
+climate <- climate[  c("row_code", "bio13_precip_wettest_month", "cmi_min")]
+
 amazon_basin_pnts <-  read.csv("data/a_chamek_ter_mammals_amazon_thinned_Oct22.csv")
 
 #---------------------------------------#
 #update label for MAPBIOMAS classes     #
 #---------------------------------------#
 
-#you can look at the classes included in the data using:
+#you can determine the classes included in the data using:
 unique(mapbiomas$class)
 
 #relabel each class to make it easier to see results
@@ -187,7 +191,7 @@ mapbiomas_mean_diff <- mapbiomas_wide %>%
                             mean_forest = mean(forest_formation),
                             mean_farming = mean(farming),
                             
-                            #difference over study period per class
+                            #difference over study period
                             diff_forest_formation = forest_formation[match(2020, year)] - forest_formation[match(2001, year)])
 
 #save dataframe
@@ -204,7 +208,7 @@ data0 <- left_join(amazon_basin_pnts, covariates, by = "row_code")
 
 &nbsp;  
 
-_Step 9._ Using the code below, we will now clean our LULC data a bit more by removing highly colinear variables. While machine learning can handle multicolinearity when making predictions, removing colinear variables can still be helpful for model interpretation. The correlation value depends on your questions and dataset, but we will use a 0.7 correlation cutoff in the code below. We will use a pair-wise analysis but another option is a variable inflation analysis (or you can use both).
+_Step 9._ Using the code below, we will now clean our covariate data a bit more by removing highly colinear variables. While machine learning can handle multicolinearity when making predictions, removing colinear variables can still be helpful for model interpretation. The correlation value depends on your questions and dataset but we will use a 0.7 correlation cutoff in the code below. We will use a pair-wise analysis but another option is a variable inflation analysis (or you can use both).
 
 ```
 #load libraries
@@ -217,16 +221,16 @@ corr <- abs(cor(data0[7:ncol(data0)]))
 chart.Correlation(data0[7:ncol(data0)], 
                   histogram = TRUE, method = "pearson")
 
-#nothing with correlation > 0.7
+#nothing with correlation > 0.7 so we keep all variabes for the analysis
                  
 ```
 <img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/lulc_correlation.png></br>
-**Figure 5.** Pearson's correlation coeffecients of variables.
+**Figure 5.** Point plot of pairwise realtionships, covariate distribution, and Pearson's correlation coeffecients of variables.
 
 &nbsp;  
 
 ### Challenge Questions
-1. Try using GEE to add additional climate or LULC covariates.
+1. Try using GEE to add additional climate or LULC covariates to the final analysis dataset.
 
 &nbsp;  
 &nbsp;  
@@ -238,7 +242,7 @@ chart.Correlation(data0[7:ncol(data0)],
 
 #### Model tuning & testing using spatial cross-validation :white_check_mark:
 
-_Step 10._  Here we will split our data in 5 folds (5 subsets) for 5-fold cross validation. It is important to test the perfomance of your model using a hold-out test set. This allows you to evaluate if your model is predicting generazliable patterns, or if it only learning the traing data (and thus "overfitting"). One way to test out-of-sample model performance is using k-fold cross validation. K-fold cross validation splits the data into k folds, it then trains and tests the model k times (where, for each iteration, one fold is a hold out fold and the remaning folds (k-1) are used for training the model). K-fold cross validation helps to test model performance across different subsets of data where the subsets are sampled without replacement. For many applications of species distribution modeling, it is ideal to use spatial cross-validation where folds are separated in space so to avoid issues of autocorrelation that arise from test and training points being very close to each other. See the figure 5. for a visual explanation. Here we will use the R package _spatialsample_. Methods for splitting folds can be dependent on your data and study questions. View the [blockCV paper (Valavi et al. 2021)](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.13107) and the [_spatialsample_](https://spatialsample.tidymodels.org/) rpackage to learn of different ways to split data. Below we will use block clustering because it is quick to implement.</br>
+_Step 10._  Next we will split our data in 3 folds (3 subsets) for 3-fold cross validation. It is important to test the perfomance of your model using a hold-out test set. This allows you to evaluate if your model is predicting generazliable patterns, or if it only learning the traing data (and thus "overfitting"). One way to test out-of-sample model performance is using k-fold cross validation. K-fold cross validation splits the data into k folds, it then trains and tests the model k times (where, for each iteration, one fold is a hold out fold and the remaning folds are used for training the model). K-fold cross validation helps to test model performance across different subsets of data where the subsets are sampled without replacement. For many applications of species distribution modeling, it is ideal to use spatial cross-validation where folds are separated in space so to avoid issues of autocorrelation that arise from test and training points being very close to each other. See the figure 5. for a visual explanation. Here we will use the R package _spatialsample_. Methods for splitting folds can be dependent on your data and study questions. View the [blockCV paper (Valavi et al. 2021)](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.13107) and the [_spatialsample_](https://spatialsample.tidymodels.org/) rpackage to learn of different ways to split data. Below we will use block clustering because it is quick to implement.</br>
 
 <img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/spatialcv_visualization.png></br>
 **Figure 5.** Visualization of spatial partitioning versus random test versus train set. Figure from towards data science ["Spatial CV Using Sickit-learn"](https://towardsdatascience.com/spatial-cross-validation-using-scikit-learn-74cb8ffe0ab9).
@@ -255,7 +259,7 @@ data0_sf  <-  st_as_sf(x  =  data0,
                        coords  =  c("lon", "lat"),
                        crs  =  "+proj=longlat +datum=WGS84 +ellps=WGS84")
 
-#identify  groups  of  5  clusters  using  the  spatialsample  package
+#identify  groups  of  3  clusters  using  the  spatialsample  package
 set.seed(99)  #set  seed  to  get  same  split  each  time
 clusters  <-  spatial_block_cv(data0_sf, 
                                method = "random", n = 30, #method for how blocks are oriented in space & number of blocks
@@ -270,7 +274,7 @@ for(i  in  1:3){
   splits_df  <-  rbind(splits_df, new_df)  #bind  all  points  x  fold  id  together
 }
 
-splits_df  <-  st_drop_geometry(splits_df)  #drop  shapefiles
+splits_df  <-  st_drop_geometry(splits_df)  #drop  geometry
 
 #final  data  -  merge  cluster  id  to  final  dataset  for  analysis
 analysis_data  <-  merge(data0, splits_df, by  =  "row_code")
@@ -286,7 +290,7 @@ write.csv(analysis_data, "data/a_chamek_ter_mammals_finalData_Oct22.csv")
 
 &nbsp;  
 
-_Step 11._ Now we train the model on each set of k-1 folds and test it on the holdout fold. For each iteration, we tune the randomForest model to optimize model performance. The tuning step can also be used to prevent over-fitting, depending on your dataset and the parameter values you search over. There are different methods for tuning a machine-learning model. Below we use a [hypergrid search](https://afit-r.github.io/random_forests#tune) and select the final parameters based on the combination that yields the best model performance. If you had trouble running _Step 10._ you can download the ["a_chamek_ter_mammals_finalData_Oct22.csv"](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_finalData_Oct22.csv) to use for the next few steps. R code for the following sections can be found in the ["2_random_forest_sdm.R"](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/2_random_forest_sdm.R) </br>
+_Step 11._ Now we train the model on each set of folds and test it on the holdout fold. For each iteration, we tune the randomForest model to optimize model performance. The tuning step can also be used to prevent over-fitting, depending on your dataset and the parameter values you search over. There are different methods for tuning a machine-learning model. Below we use a [hypergrid search](https://afit-r.github.io/random_forests#tune) and select the final parameters based on the combination that yields the best model performance. If you had trouble running _Step 10._ you can download the ["a_chamek_ter_mammals_finalData_Oct22.csv"](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_finalData_Oct22.csv) to use for the next few steps. R code for the following sections can be found in the ["2_random_forest_sdm.R"](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/2_random_forest_sdm.R) </br>
 
 ```
 library(ranger)
@@ -466,10 +470,10 @@ ggplot(permutation_importance, aes(x  =  variable, y  =  importance))  +
 
 &nbsp;  
 
-##### PDPs
-> blurb defining pdps
+##### Partial dependence plots
+Partial dependence plots (PDPs) depict the relationship between the probability of species occurrence and the variable of interest across a range of values for that variable. At each value of the variable, the model is evaluated for all values of the other covariates. The final model output is the average predicted probability across all model inputs. ![image](https://user-images.githubusercontent.com/44818401/198905725-48ddf02b-2b0a-4432-a1f3-5501c97631a9.png)
 
-PDP plot?
+
 
 ```
 #------------------------------------------------------------#
@@ -477,7 +481,7 @@ PDP plot?
 #------------------------------------------------------------#
 
 #list of covariate names to generate pdps for and loop through
-var_names  <-  names(analysis_data_v2[complete.cases(analysis_data_v2),  -c(1, 2)])
+var_names  <-  names(analysis_data_v2[complete.cases(analysis_data_v2),  -c(1, 2)]) #analysis data set exlucing 'presence' and 'fold' column
 
 #dataframe  to  make  partial  dependence  plots
 pd_df  =  data.frame(matrix(vector(), 0, 3, dimnames=list(c(), c('variable', 'value', 'yhat'))),  
