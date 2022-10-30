@@ -244,7 +244,7 @@ chart.Correlation(data0[7:ncol(data0)],
 
 _Step 10._  Next we will split our data in 3 folds (3 subsets) for 3-fold cross validation. It is important to test the perfomance of your model using a hold-out test set. This allows you to evaluate if your model is predicting generazliable patterns, or if it only learning the traing data (and thus "overfitting"). One way to test out-of-sample model performance is using k-fold cross validation. K-fold cross validation splits the data into k folds, it then trains and tests the model k times (where, for each iteration, one fold is a hold out fold and the remaning folds are used for training the model). K-fold cross validation helps to test model performance across different subsets of data where the subsets are sampled without replacement. For many applications of species distribution modeling, it is ideal to use spatial cross-validation where folds are separated in space so to avoid issues of autocorrelation that arise from test and training points being very close to each other. See the figure 5. for a visual explanation. Here we will use the R package _spatialsample_. Methods for splitting folds can be dependent on your data and study questions. View the [blockCV paper (Valavi et al. 2021)](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.13107) and the [_spatialsample_](https://spatialsample.tidymodels.org/) rpackage to learn of different ways to split data. Below we will use block clustering because it is quick to implement.</br>
 
-<img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/spatialcv_visualization.png></br>
+<img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/spatialcv_visualization.png width="700" height="350"></br>
 **Figure 5.** Visualization of spatial partitioning versus random test versus train set. Figure from towards data science ["Spatial CV Using Sickit-learn"](https://towardsdatascience.com/spatial-cross-validation-using-scikit-learn-74cb8ffe0ab9).
 
 ```
@@ -464,14 +464,14 @@ ggplot(permutation_importance, aes(x  =  variable, y  =  importance))  +
 
 ```
 
-<img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/variable_importance_plot.png>
+<img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/variable_importance_plot.png width="850" height="650">
 
-**Figure x** variable importance
+**Figure 6.** Permutation variable importance for each covariate in the model.
 
 &nbsp;  
 
 ##### Partial dependence plots
-Partial dependence plots (PDPs) depict the relationship between the probability of species occurrence and the variable of interest across a range of values for that variable. At each value of the variable, the model is evaluated for all values of the other covariates. The final model output is the average predicted probability across all model inputs. ![image](https://user-images.githubusercontent.com/44818401/198905725-48ddf02b-2b0a-4432-a1f3-5501c97631a9.png)
+Partial dependence plots (PDPs) depict the relationship between the probability of species occurrence and the variable of interest across a range of values for that variable. At each value of the variable, the model is evaluated for all values of the other covariates. The final model output is the average predicted probability across all model inputs. 
 
 
 
@@ -509,7 +509,7 @@ ggplot(pd_df, aes(x  =  value, y=  yhat))  +
 ```
 <img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/pdp_plot.png>
 
-**Figure x** pdps...
+**Figure 8.** Partial depdence plots for each covariate in the model.
 
 &nbsp;  
 
