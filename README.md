@@ -82,15 +82,215 @@ Map.addLayer(fcVis);
 
 &nbsp;  
 
-_Step 7._ We will now calculate area per each feature (point + buffer) per year in the study period (2001-2020) in the feature collection. _A. chamek_ typically live in lowland forests but are listed as endangered due to habitat loss. For our initial model we will include lulc variables related to forest cover and farming.
+_Step 7._ We will now calculate area per each feature (point + buffer) per year in the study period (2001-2020) in the feature collection. _A. chamek_ typically live in lowland forests but are listed as endangered due to habitat loss. For our initial model we will include lulc variables related to forest cover and farming. The MAPBIOMAS code first sets the calculations up by setting a number of parameters / variables including, among other parameters / variables, setting the identifying property of each point as 'attribute', defining territories (the features), the image (MAPBIOMAS collection), classIds (the land-class you want to calculate area for), the name of the export file, and the file to export to. You can follow along with the GEE code below or in the file on [Caroline' GEE code editor, linked here and above](https://code.earthengine.google.com/771c0679c9e616bed66bba01a12460c1). The code below also includes code to print the MAPBIOMAS image to view the structure and to map the first year of MAPBIOMAS data (the first band of the image). 
+
+<img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/mapbiomas_structure.png></br>
+**Figure 5.** The print of of the MAPBIOMAS image. You will see that each year of LULC data is a band in the image. This is important infomation to know when it comes to deciding how to extract the data you want. 
+
+```
+// Asset = mapbiomas collection that you would like to use
+
+var asset = 'projects/mapbiomas-raisg/public/collection3/mapbiomas_raisg_panamazonia_collection3_integration_v2';
+
+// Numeric attribute to index the point
+var attribute = "row_code";
+
+// Output csv name
+var outputName = 'a_chamek_ter_mammals_lulc_Oct2022';
+
+// Change the scale if you need.
+var scale = 30;
+
+// Define a list of years to export
+var years = ['2001','2002','2003','2004','2005','2006','2007','2008','2009',
+              '2010', '2011', '2012', '2013', '2014', '2015', '2016',
+              '2017', '2018', '2019', '2020'];
+
+// A list of class ids you are interested
+var classIds = [
+ // 1, //Bosque
+    3, // Formação Florestal
+//  4, // Formação Savânica
+//  5, // Mangue
+//  6, // Bosque inundable
+//  10, // Formación Natural no Forestal
+//  11, // Formación Natural no Forestal Inundable
+//  12, // Formación Campestre o herbazal
+//  29, // Afloramento Rochoso
+//  13, // Outra Formação não Florestal
+    14, //Uso Agropecuario
+//  22, // Área não Vegetada
+//  24, // Infraestrutura Urbana
+//  30, // Mineração
+//  25, // Outra Área não Vegetada
+//  26, // Cuerpo de agua
+//  33, // Rio, Lago e Oceano
+//  34, //Glaciar
+//  27, //No observado
+];    
+    
+
+// Define a Google Drive output folder 
+//if this folder does not alread exist, this code will create the folder in your google drive
+var driverFolder = 'GEEexports';
+
+/**
+ * 
+ */
+/**
+ * 
+ */
+// Territory
+var territory = ee.FeatureCollection(pointBuffers);
+
+// LULC mapbiomas image - 36 bands, one image per band, band named "classification_year"
+var mapbiomas = ee.Image(asset).selfMask();
+//print(mapbiomas) print to view image collection
+
+var singleBandVis = { //set mapping parameters
+  min: 1, //min classId
+  max: 35, //max classId
+  //define color ramp that will be stretched from 1 to 35
+  palette: ['08A11A', '71FDD9', 'FAD7A0', 'EBB3FC', '3498DB', '1F618D']};
+Map.setCenter(-69.60, -12.39, 4) //coordinates & degree to zoom in
+Map.addLayer(mapbiomas.select("classification_1985"), singleBandVis, 'MAPBIOMAS')
+
+// Image area in km2, one band named "area"
+var pixelArea = ee.Image.pixelArea().divide(1000000);
+
+// Geometry to export
+var geometry = mapbiomas.geometry();
 
 
-_Step 8._ We will export a table with land class area per year per point as a csv to our GEE folder. You can also export the table as a shape file. 
+```
+<img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/mapbiomas_example_1985.png></br>
+**Figure 6.** A map of the MAPBIOMAS data from 1985 (produced from the code above). 
+
+_Step 8._ Now the MAPBIOMAS code defines functions that will be used to calculate area. This code is complex and hard to understand, so don't feel overwhelemed if it does not make sense the first time we go through it. The second function takes in a band of a MAPBIOMAS image, a feature, and the feature geometry and returns areas per land-class per feature (data point) as a table. The second feature initially produces a complex object because it converts the feature to an image, and then maps over the MAPBIOMAS image and the feature image to produce the sum of class pixels per feature. The first function is used within the second function to convert that complex object into a table that we can export. 
+
+```
+/**
+ * Convert a complex ob to feature collection
+ * @param obj 
+ */
+var convert2table = function (obj) {
+
+    obj = ee.Dictionary(obj); //create dictionary 
+
+    var territory = obj.get('territory'); //extract a property from a feature
+
+    var classesAndAreas = ee.List(obj.get('groups')); //extract a property from a feature and create a list
+
+    var tableRows = classesAndAreas.map( //apply to every image in image collection
+        function (classAndArea) {
+            classAndArea = ee.Dictionary(classAndArea);
+
+            var classId = classAndArea.get('class'); //extract class
+            var area = classAndArea.get('sum'); //extract sum of pixels
+
+            var tableColumns = ee.Feature(null)
+                .set(attribute, territory) //set row_code
+                .set('class', classId) //set id to class column
+                .set('area', area); //set area to area column
+
+            return tableColumns; //return table as funtion output
+        }
+    );
+
+    return ee.FeatureCollection(ee.List(tableRows));
+};
+
+/**
+ * Calculate area crossing a cover map (deforestation, mapbiomas)
+ * and a region map (states, biomes, municipalites)
+ * @param image 
+ * @param territory 
+ * @param geometry
+ */
+ 
+ 
+ 
+ //the following code creates a function that takes in a band of a MAPBIOMAS image, a feature, and the feature geometry and returns areas as a table
+var calculateArea = function (image, territory, geometry) {
+
+    //create reducer to get sum per class per territory
+    var reducer = ee.Reducer.sum().group(1, 'class').group(1, 'territory');
+
+  // now create a territories object that for each 1km, add info from each feature, add the image, and then sums per group combination (feature x land-class)
+  //each pixel using the reducer above
+    var territoriesData = pixelArea.addBands(territory).addBands(image)
+        .reduceRegion({
+            reducer: reducer,
+            geometry: geometry,
+            scale: scale,
+            maxPixels: 1e12
+        });
+
+    territoriesData = ee.List(territoriesData.get('groups')); //list for each group
+
+    var areas = territoriesData.map(convert2table); //use code above to turn territories object into a table, obj = territoriesData
+
+    areas = ee.FeatureCollection(areas).flatten(); //flattens collection of collections
+
+    return areas;
+};
+```
+
+_Step 9._ Now we apply to the above functions to the MAPBIOMAS image and our feature collection, and map over the MAPBIOMAS image so that we create a table for each year (i.e., band of the MAPBIOMAS image that we want, defined in the year list in the code above). 
+
+```
+//for each year, calculate area using functions above
+var areas = years.map(
+    function (year) {
+        var image = mapbiomas.select('classification_' + year); //select the band for a year
+
+        var areas = territory.map( //for each feature (territory) run the calculateArea function
+            function (feature) {
+                return calculateArea( //function from above where you need to define (image, feature, geometry)
+                  //image: the MAPBIOMAS band defined above, where land classes that are not defined in class id list are remapped to 0
+                    image.remap(classIds, classIds, 0),
+                    //feature: the feature converted to an image with row_code as a property
+                    ee.Image().int64().paint({
+                        'featureCollection': ee.FeatureCollection(feature),
+                        'color': attribute
+                    }),
+                    feature.geometry() //geometry: feature geometry
+                );
+            }
+        );
+
+        areas = areas.flatten(); //flatten collection
+
+        // set additional properties
+        areas = areas.map(
+            function (feature) {
+                return feature.set('year', year);
+            }
+        );
+
+        return areas;
+    }
+);
+
+areas = ee.FeatureCollection(areas).flatten(); //flatten collection of collections
+```
+
+_Step 10._ Now export the new feature collection (a table with area per land-class per data point) to the Google Drive folder that you named in the code above.
+
+```
+Export.table.toDrive({
+    collection: areas,
+    description: outputName,
+    folder: driverFolder,
+    fileNamePrefix: outputName,
+    fileFormat: 'CSV'
+});
+```
 
 &nbsp;  
 
 #### Downloading climate data :thermometer: </br>
-_Step 9._ Species distributions are usually, at least in part, dictated by interations between land cover and climate. We will use the [CHELSA dataset](https://chelsa-climate.org/) to add climatologies to our model. The CHELSA data is at a 1km^2 resolution, which is why we scaled the MAPBIOMAS data up to 1km. We will use the same feature collection from steps 6-8. A GEE script can be found [here](https://code.earthengine.google.com/14b1a32976d3097b5eca6be97cf84559).
+_Step 11._ Species distributions are usually, at least in part, dictated by interations between land cover and climate. We will use the [CHELSA dataset](https://chelsa-climate.org/) to add climatologies to our model. The CHELSA data is at a 1km^2 resolution, which is why we scaled the MAPBIOMAS data up to 1km. We will use the same feature collection from steps 6-8. A GEE script can be found [here](https://code.earthengine.google.com/14b1a32976d3097b5eca6be97cf84559).
 
 ```
 /////CHELSA climatologies
@@ -126,7 +326,7 @@ Export.table.toDrive({
 
 &nbsp;  
 
-_Step 10._ Skip actually running the GEE code for now and download the ["a_chamek_ter_mammals_lulc_Oct22.csv" file](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_lulc_Oct22.csv) and th ["a_chamek_ter_mammals_climate_Oct22.csv" file](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_climate_Oct22.csv) pre-downloaded data from the data folder.
+_Step 12._ Skip actually running the GEE code for now and download the ["a_chamek_ter_mammals_lulc_Oct22.csv" file](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_lulc_Oct22.csv) and th ["a_chamek_ter_mammals_climate_Oct22.csv" file](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_climate_Oct22.csv) pre-downloaded data from the data folder.
 
 &nbsp;  
 
@@ -136,7 +336,7 @@ R code for the following sections can be found in the ["1_cleaning_data.R"](http
 
 &nbsp;  
 
-_Step 11._ Using the data downloaded in step 10 and the code below, we will relabel MAPBIOMAS classes to make it easier to view results. We'll then aggregate LULC data by taking the mean LULC from 2001-2020. Since _A. chamek_ is affected by deforestation we will also look at difference in forest cover between 2001-2020. We will then merge the lulc data with the occurrence data and climate data. The climate data is exported from GEE in an immediately useable form. Note: Given the pace of LULC change, this is a really coarse way of aggregating the data and we likely loose a lot of signal.  
+_Step 13._ Using the data downloaded in step 10 and the code below, we will relabel MAPBIOMAS classes to make it easier to view results. We'll then aggregate LULC data by taking the mean LULC from 2001-2020. Since _A. chamek_ is affected by deforestation we will also look at difference in forest cover between 2001-2020. We will then merge the lulc data with the occurrence data and climate data. The climate data is exported from GEE in an immediately useable form. Note: Given the pace of LULC change, this is a really coarse way of aggregating the data and we likely loose a lot of signal.  
 
 ```
 #load libraries
@@ -208,7 +408,7 @@ data0 <- left_join(amazon_basin_pnts, covariates, by = "row_code")
 
 &nbsp;  
 
-_Step 9._ Using the code below, we will now clean our covariate data a bit more by removing highly colinear variables. While machine learning can handle multicolinearity when making predictions, removing colinear variables can still be helpful for model interpretation. The correlation value depends on your questions and dataset but we will use a 0.7 correlation cutoff in the code below. We will use a pair-wise analysis but another option is a variable inflation analysis (or you can use both).
+_Step 14._ Using the code below, we will now clean our covariate data a bit more by removing highly colinear variables. While machine learning can handle multicolinearity when making predictions, removing colinear variables can still be helpful for model interpretation. The correlation value depends on your questions and dataset but we will use a 0.7 correlation cutoff in the code below. We will use a pair-wise analysis but another option is a variable inflation analysis (or you can use both).
 
 ```
 #load libraries
@@ -225,7 +425,7 @@ chart.Correlation(data0[7:ncol(data0)],
                  
 ```
 <img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/lulc_correlation.png></br>
-**Figure 5.** Point plot of pairwise realtionships, covariate distribution, and Pearson's correlation coeffecients of variables.
+**Figure 7.** Point plot of pairwise realtionships, covariate distribution, and Pearson's correlation coeffecients of variables.
 
 &nbsp;  
 
@@ -242,10 +442,10 @@ chart.Correlation(data0[7:ncol(data0)],
 
 #### Model tuning & testing using spatial cross-validation :white_check_mark:
 
-_Step 10._  Next we will split our data in 3 folds (3 subsets) for 3-fold cross validation. It is important to test the perfomance of your model using a hold-out test set. This allows you to evaluate if your model is predicting generazliable patterns, or if it only learning the traing data (and thus "overfitting"). One way to test out-of-sample model performance is using k-fold cross validation. K-fold cross validation splits the data into k folds, it then trains and tests the model k times (where, for each iteration, one fold is a hold out fold and the remaning folds are used for training the model). K-fold cross validation helps to test model performance across different subsets of data where the subsets are sampled without replacement. For many applications of species distribution modeling, it is ideal to use spatial cross-validation where folds are separated in space so to avoid issues of autocorrelation that arise from test and training points being very close to each other. See the figure 5. for a visual explanation. Here we will use the R package _spatialsample_. Methods for splitting folds can be dependent on your data and study questions. View the [blockCV paper (Valavi et al. 2021)](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.13107) and the [_spatialsample_](https://spatialsample.tidymodels.org/) rpackage to learn of different ways to split data. Below we will use block clustering because it is quick to implement.</br>
+_Step 15._  Next we will split our data in 3 folds (3 subsets) for 3-fold cross validation. It is important to test the perfomance of your model using a hold-out test set. This allows you to evaluate if your model is predicting generazliable patterns, or if it only learning the traing data (and thus "overfitting"). One way to test out-of-sample model performance is using k-fold cross validation. K-fold cross validation splits the data into k folds, it then trains and tests the model k times (where, for each iteration, one fold is a hold out fold and the remaning folds are used for training the model). K-fold cross validation helps to test model performance across different subsets of data where the subsets are sampled without replacement. For many applications of species distribution modeling, it is ideal to use spatial cross-validation where folds are separated in space so to avoid issues of autocorrelation that arise from test and training points being very close to each other. See the figure 5. for a visual explanation. Here we will use the R package _spatialsample_. Methods for splitting folds can be dependent on your data and study questions. View the [blockCV paper (Valavi et al. 2021)](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.13107) and the [_spatialsample_](https://spatialsample.tidymodels.org/) rpackage to learn of different ways to split data. Below we will use block clustering because it is quick to implement.</br>
 
 <img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/spatialcv_visualization.png width="700" height="350"></br>
-**Figure 5.** Visualization of spatial partitioning versus random test versus train set. Figure from towards data science ["Spatial CV Using Sickit-learn"](https://towardsdatascience.com/spatial-cross-validation-using-scikit-learn-74cb8ffe0ab9).
+**Figure 8.** Visualization of spatial partitioning versus random test versus train set. Figure from towards data science ["Spatial CV Using Sickit-learn"](https://towardsdatascience.com/spatial-cross-validation-using-scikit-learn-74cb8ffe0ab9).
 
 ```
 library(spatialsample); library(sf)
@@ -290,7 +490,7 @@ write.csv(analysis_data, "data/a_chamek_ter_mammals_finalData_Oct22.csv")
 
 &nbsp;  
 
-_Step 11._ Now we train the model on each set of folds and test it on the holdout fold. For each iteration, we tune the randomForest model to optimize model performance. The tuning step can also be used to prevent over-fitting, depending on your dataset and the parameter values you search over. There are different methods for tuning a machine-learning model. Below we use a [hypergrid search](https://afit-r.github.io/random_forests#tune) and select the final parameters based on the combination that yields the best model performance. If you had trouble running _Step 10._ you can download the ["a_chamek_ter_mammals_finalData_Oct22.csv"](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_finalData_Oct22.csv) to use for the next few steps. R code for the following sections can be found in the ["2_random_forest_sdm.R"](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/2_random_forest_sdm.R) </br>
+_Step 16._ Now we train the model on each set of folds and test it on the holdout fold. For each iteration, we tune the randomForest model to optimize model performance. The tuning step can also be used to prevent over-fitting, depending on your dataset and the parameter values you search over. There are different methods for tuning a machine-learning model. Below we use a [hypergrid search](https://afit-r.github.io/random_forests#tune) and select the final parameters based on the combination that yields the best model performance. If you had trouble running _Step 10._ you can download the ["a_chamek_ter_mammals_finalData_Oct22.csv"](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_finalData_Oct22.csv) to use for the next few steps. R code for the following sections can be found in the ["2_random_forest_sdm.R"](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/2_random_forest_sdm.R) </br>
 
 ```
 library(ranger)
@@ -414,7 +614,7 @@ for(i  in  1:3){  #  run  one  iteration  per  fold
 &nbsp;  
 
 #### Training of final model :woman_technologist:
-_Step 12._ Now train the final model that will be used for interpretation and prediction. Below, I used the average hyperpameters from the tuning steps.
+_Step 17._ Now train the final model that will be used for interpretation and prediction. Below, I used the average hyperpameters from the tuning steps.
 
 ```
 #------------------------------------------------------------#
@@ -442,7 +642,7 @@ final_model  <-  ranger(
 #### Model interpretation :bar_chart: :chart_with_upwards_trend:
 
 ##### Variable importance
-_Step 12._ There are many ways to calculate variable importance. Here, we will use a intuitive and model agnostic measure of variable importance. In sum, we will calculate change in model performance when a focal variable is randomly permuted, which will tell us the degree to which the variable contributes to model performance and thus accuracy of model predictions. **need to define y axis better**
+_Step 18._ There are many ways to calculate variable importance. Here, we will use a intuitive and model agnostic measure of variable importance. In sum, we will calculate change in model performance when a focal variable is randomly permuted, which will tell us the degree to which the variable contributes to model performance and thus accuracy of model predictions. **need to define y axis better**
 
 
 ```
@@ -466,7 +666,7 @@ ggplot(permutation_importance, aes(x  =  variable, y  =  importance))  +
 
 <img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/variable_importance_plot.png width="850" height="650">
 
-**Figure 6.** Permutation variable importance for each covariate in the model.
+**Figure 9.** Permutation variable importance for each covariate in the model.
 
 &nbsp;  
 
@@ -509,7 +709,7 @@ ggplot(pd_df, aes(x  =  value, y=  yhat))  +
 ```
 <img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/pdp_plot.png>
 
-**Figure 8.** Partial depdence plots for each covariate in the model.
+**Figure 10.** Partial depdence plots for each covariate in the model.
 
 &nbsp;  
 
