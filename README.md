@@ -680,6 +680,11 @@ Partial dependence plots (PDPs) depict the relationship between the probability 
 #pdps                                                                                                                #
 #------------------------------------------------------------#
 
+#try plotting a PDP for just one variable
+pdp::partial(final_model, pred.var  =  "mean_forest", prob  =  TRUE, train  =  analysis_data_v2[complete.cases(analysis_data_v2), -2])) 
+#train = data without NAs & without "fold" column
+
+###now run a for loop to get plotting data for all variables in the model (or in the 'var_names' list
 #list of covariate names to generate pdps for and loop through
 var_names  <-  names(analysis_data_v2[complete.cases(analysis_data_v2),  -c(1, 2)]) #analysis data set exlucing 'presence' and 'fold' column
 
