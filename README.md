@@ -236,7 +236,7 @@ var calculateArea = function (image, territory, geometry) {
 };
 ```
 
-_Step 9._ Now we apply to the above functions to the MAPBIOMAS image and our feature collection, and map over the MAPBIOMAS image so that we create a table for each year (i.e., band of the MAPBIOMAS image that we want, defined in the year list in the code above). 
+_Step 9._ Now we apply the above functions to the MAPBIOMAS image and our feature collection, and map over the MAPBIOMAS image so that we create a table for each year (i.e., band of the MAPBIOMAS image that we want, defined in the year list in the code above). 
 
 ```
 //for each year, calculate area using functions above
