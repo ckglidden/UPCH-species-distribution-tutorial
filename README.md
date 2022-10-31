@@ -436,7 +436,7 @@ chart.Correlation(data0[7:ncol(data0)],
 &nbsp;  
 
 ### 3. Machine-learning based SDMs 
-> short blurb on different algorithms that have been used and why we are using one specific one for the workshop (RF?)
+> There a multiple statistical models (e.g., generalized additive models) and machine learning models (e.g., maxent, random forest, boosted regression tree) that can be used for SDMs. You can read more about different SDM modeling methods in [Valavi et al. 2022](https://esajournals.onlinelibrary.wiley.com/doi/full/10.1002/ecm.1486). Here, we will use a random forest model as they are typically have high accuracy (as they deal with non-linearity and higher-order interactions well) and are fast to implement. Random forest is a classification algorithm that takes the average of multiple decision trees. You can learn more about random forests by watching [this video](https://www.youtube.com/watch?v=v6VJ2RO66Ag). 
 
 &nbsp;  
 
