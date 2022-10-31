@@ -84,7 +84,7 @@ Map.addLayer(fcVis);
 
 _Step 7._ We will now calculate area per each feature (point + buffer) per year in the study period (2001-2020) in the feature collection. _A. chamek_ typically live in lowland forests but are listed as endangered due to habitat loss. For our initial model we will include lulc variables related to forest cover and farming. The MAPBIOMAS code first sets the calculations up by setting a number of parameters / variables including, among other parameters / variables, setting the identifying property of each point as 'attribute', defining territories (the features), the image (MAPBIOMAS collection), classIds (the land-class you want to calculate area for), the name of the export file, and the file to export to. You can follow along with the GEE code below or in the file on [Caroline' GEE code editor, linked here and above](https://code.earthengine.google.com/771c0679c9e616bed66bba01a12460c1). The code below also includes code to print the MAPBIOMAS image to view the structure and to map the first year of MAPBIOMAS data (the first band of the image). 
 
-<img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/mapbiomas_structure.png></br>
+<img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/mapbiomas_structure.png width="900" height="450"></br>
 **Figure 5.** The print of of the MAPBIOMAS image. You will see that each year of LULC data is a band in the image. This is important infomation to know when it comes to deciding how to extract the data you want. 
 
 ```
@@ -163,7 +163,7 @@ var geometry = mapbiomas.geometry();
 
 
 ```
-<img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/mapbiomas_example_1985.png></br>
+<img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/mapbiomas_example_1985.png width="800" height="550"></br>
 **Figure 6.** A map of the MAPBIOMAS data from 1985 (produced from the code above). 
 
 _Step 8._ Now the MAPBIOMAS code defines functions that will be used to calculate area. This code is complex and hard to understand, so don't feel overwhelemed if it does not make sense the first time we go through it. The second function takes in a band of a MAPBIOMAS image, a feature, and the feature geometry and returns areas per land-class per feature (data point) as a table. The second feature initially produces a complex object because it converts the feature to an image, and then maps over the MAPBIOMAS image and the feature image to produce the sum of class pixels per feature. The first function is used within the second function to convert that complex object into a table that we can export. 
