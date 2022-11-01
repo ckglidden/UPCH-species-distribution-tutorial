@@ -15,7 +15,7 @@
 
 
 ### 1. Presence-background species distribution models
-> For this model we are using _Ateles chamek_ (the Peruvian spider moneky) as a focal species and all other terrestrial mammals as background species. The background species helps to  us to understand the difference between the focal species and the average landscape over which mammals are sampled (thus accounting for sampling bias in the occurrence points). Point data was downloaded from GBIF using the ["0_download_gbif_points.R" code](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/0_download_gbif_points.R). 
+> For this model we are using _Ateles chamek_ (the Peruvian spider moneky) as a focal species and all other terrestrial mammals as background species. The background species help us to understand the difference between the focal species and the average landscape over which mammals are sampled (thus accounting for sampling bias in the occurrence points). Point data was downloaded from GBIF using the ["0_download_gbif_points.R" code](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/0_download_gbif_points.R). 
 
 ![Figure 1. Distribution of points](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/a_chamek_sdm_point_distribution.png)
 **Figure 1.** Distribution of points for the focal species (_A. chamek_) (blue) and background species (grey) thinned to 1km grid cells across the Amazon Basin. The number of background points was further reduced by using a background point probability mask and sampling 3 * the no. of occurrence points. The code used to create the probability surface and sample the background points is in the ["0_download_gbif_points.R" code](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/0_download_gbif_points.R). An example of using a background mask to sample background points can be found in [Moyes et al. 2016](https://parasitesandvectors.biomedcentral.com/articles/10.1186/s13071-016-1527-0).
@@ -27,7 +27,7 @@
 
 _Step 1._ Download occurrence dataset from the data folder: [a_chamek_ter_mammals_amazon_thinned_Oct22.csv](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_amazon_thinned_Oct22.csv)
 
-_Step 2._ Upload occurrence dataset as a GEE feature collections.</br>
+_Step 2._ Upload occurrence dataset as a GEE feature collection.</br>
 <img src=https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/GEE_csv_asset.png width="250" height="380"></br>
 **Figure 2.** Navigation for uploading csv as a feature collection.
 
@@ -85,7 +85,7 @@ Map.addLayer(fcVis);
 _Step 7._ We will now calculate area per each feature (point + buffer) per year in the study period (2001-2020) in the feature collection. _A. chamek_ typically live in lowland forests but are listed as endangered due to habitat loss. For our initial model we will include lulc variables related to forest cover and farming. The MAPBIOMAS code first sets the calculations up by setting a number of parameters / variables including, among other parameters / variables, setting the identifying property of each point as 'attribute', defining territories (the features), the image (MAPBIOMAS collection), classIds (the land-class you want to calculate area for), the name of the export file, and the file to export to. You can follow along with the GEE code below or in the file on [Caroline' GEE code editor, linked here and above](https://code.earthengine.google.com/771c0679c9e616bed66bba01a12460c1). The code below also includes code to print the MAPBIOMAS image to view the structure and to map the first year of MAPBIOMAS data (the first band of the image). 
 
 <img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/mapbiomas_structure.png width="900" height="450"></br>
-**Figure 5.** The print of of the MAPBIOMAS image. You will see that each year of LULC data is a band in the image. This is important infomation to know when it comes to deciding how to extract the data you want. 
+**Figure 5.** The print of the MAPBIOMAS image. You will see that each year of LULC data is a band in the image. This is important infomation to know when it comes to deciding how to extract the data you want. 
 
 ```
 // Asset = mapbiomas collection that you would like to use
@@ -131,7 +131,7 @@ var classIds = [
     
 
 // Define a Google Drive output folder 
-//if this folder does not alread exist, this code will create the folder in your google drive
+//if this folder does not already exist, this code will create the folder in your google drive
 var driverFolder = 'GEEexports';
 
 /**
@@ -166,7 +166,7 @@ var geometry = mapbiomas.geometry();
 <img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/mapbiomas_example_1985.png width="800" height="550"></br>
 **Figure 6.** A map of the MAPBIOMAS data from 1985 (produced from the code above). 
 
-_Step 8._ Now the MAPBIOMAS code defines functions that will be used to calculate area. This code is complex and hard to understand, so don't feel overwhelemed if it does not make sense the first time we go through it. The second function takes in a band of a MAPBIOMAS image, a feature, and the feature geometry and returns areas per land-class per feature (data point) as a table. The second feature initially produces a complex object because it converts the feature to an image, and then maps over the MAPBIOMAS image and the feature image to produce the sum of class pixels per feature. The first function is used within the second function to convert that complex object into a table that we can export. 
+_Step 8._ Now the MAPBIOMAS code defines functions that will be used to calculate area. This code is complex and hard to understand, so don't feel overwhelemed if it does not make sense the first time we go through it. The second function takes in a band of a MAPBIOMAS image, a feature, and the feature geometry and returns area per land-class per feature (data point) as a table. The second feature initially produces a complex object because it converts the feature to an image, and then maps over the MAPBIOMAS image and the feature image to produce the sum of class pixels per feature. The first function is used within the second function to convert that complex object into a table that we can export. 
 
 ```
 /**
@@ -216,7 +216,7 @@ var calculateArea = function (image, territory, geometry) {
     //create reducer to get sum per class per territory
     var reducer = ee.Reducer.sum().group(1, 'class').group(1, 'territory');
 
-  // now create a territories object that for each 1km, add info from each feature, add the image, and then sums per group combination (feature x land-class)
+  // now create a territories object that for each 1km pixel, add info from each feature, add the image, and then sums per group combination (feature x land-class)
   //each pixel using the reducer above
     var territoriesData = pixelArea.addBands(territory).addBands(image)
         .reduceRegion({
@@ -289,8 +289,8 @@ Export.table.toDrive({
 
 &nbsp;  
 
-#### Downloading climate data :thermometer: </br>
-_Step 11._ Species distributions are usually, at least in part, dictated by interations between land cover and climate. We will use the [CHELSA dataset](https://chelsa-climate.org/) to add climatologies to our model. The CHELSA data is at a 1km^2 resolution, which is why we scaled the MAPBIOMAS data up to 1km. We will use the same feature collection from steps 6-8. A GEE script can be found [here](https://code.earthengine.google.com/14b1a32976d3097b5eca6be97cf84559).
+#### Downloading historical climate data :thermometer: </br>
+_Step 11._ Species distributions are usually, at least in part, dictated by interations between land cover and climate. We will use the [CHELSA dataset](https://chelsa-climate.org/) to add climatologies to our model. The CHELSA climatologies are averages from 1985-2010 a 1km^2 resolution, which is why we scaled the MAPBIOMAS data up to 1km. We will use the same feature collection from steps 6-10. A GEE script can be found [here](https://code.earthengine.google.com/14b1a32976d3097b5eca6be97cf84559).
 
 ```
 /////CHELSA climatologies
@@ -336,7 +336,7 @@ R code for the following sections can be found in the ["1_cleaning_data.R"](http
 
 &nbsp;  
 
-_Step 13._ Using the data downloaded in step 10 and the code below, we will relabel MAPBIOMAS classes to make it easier to view results. We'll then aggregate LULC data by taking the mean LULC from 2001-2020. Since _A. chamek_ is affected by deforestation we will also look at difference in forest cover between 2001-2020. We will then merge the lulc data with the occurrence data and climate data. The climate data is exported from GEE in an immediately useable form. Note: Given the pace of LULC change, this is a really coarse way of aggregating the data and we likely loose a lot of signal.  
+_Step 13._ Using the data downloaded in step 12 and the code below, we will relabel MAPBIOMAS classes to make it easier to view results. We'll then aggregate LULC data by taking the mean LULC from 2001-2020. Since _A. chamek_ is affected by deforestation we will also look at difference in forest cover between 2001-2020. We will then merge the lulc data with the occurrence data and climate data. The climate data is exported from GEE in an immediately useable form. Note: Given the pace of LULC change, this is a really coarse way of aggregating the data and we likely loose a lot of signal.  
 
 ```
 #load libraries
@@ -436,13 +436,13 @@ chart.Correlation(data0[7:ncol(data0)],
 &nbsp;  
 
 ### 3. Machine-learning based SDMs 
-> There a multiple statistical models (e.g., generalized additive models) and machine learning models (e.g., maxent, random forest, boosted regression tree) that can be used for SDMs. You can read more about different SDM modeling methods in [Valavi et al. 2022](https://esajournals.onlinelibrary.wiley.com/doi/full/10.1002/ecm.1486). Here, we will use a random forest model as they are typically have high accuracy (as they deal with non-linearity and higher-order interactions well) and are fast to implement. Random forest is a classification algorithm that takes the average of multiple decision trees. You can learn more about random forests by watching [this video](https://www.youtube.com/watch?v=v6VJ2RO66Ag). 
+> There are multiple statistical models (e.g., generalized additive models) and machine learning models (e.g., maxent, random forest, boosted regression tree) that can be used for SDMs. You can read more about different SDM modeling methods in [Valavi et al. 2022](https://esajournals.onlinelibrary.wiley.com/doi/full/10.1002/ecm.1486). Here, we will use a random forest model as they typically have high accuracy (as they deal with non-linearity and higher-order interactions well) and are fast to implement. Random forest is a classification algorithm that takes the average of multiple decision trees. You can learn more about random forests by watching [this video](https://www.youtube.com/watch?v=v6VJ2RO66Ag). 
 
 &nbsp;  
 
 #### Model tuning & testing using spatial cross-validation :white_check_mark:
 
-_Step 15._  Next we will split our data in 3 folds (3 subsets) for 3-fold cross validation. It is important to test the perfomance of your model using a hold-out test set. This allows you to evaluate if your model is predicting generazliable patterns, or if it only learning the traing data (and thus "overfitting"). One way to test out-of-sample model performance is using k-fold cross validation. K-fold cross validation splits the data into k folds, it then trains and tests the model k times (where, for each iteration, one fold is a hold out fold and the remaning folds are used for training the model). K-fold cross validation helps to test model performance across different subsets of data where the subsets are sampled without replacement. For many applications of species distribution modeling, it is ideal to use spatial cross-validation where folds are separated in space so to avoid issues of autocorrelation that arise from test and training points being very close to each other. See the figure 5. for a visual explanation. Here we will use the R package _spatialsample_. Methods for splitting folds can be dependent on your data and study questions. View the [blockCV paper (Valavi et al. 2021)](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.13107) and the [_spatialsample_](https://spatialsample.tidymodels.org/) rpackage to learn of different ways to split data. Below we will use block clustering because it is quick to implement.</br>
+_Step 15._  Next we will split our data into 3 folds (3 subsets) for 3-fold cross validation. It is important to test the perfomance of your model using a hold-out test set. This allows you to evaluate if your model is predicting generazliable patterns, or if it is only learning the traing data (and thus "overfitting"). One way to test out-of-sample model performance is using k-fold cross-validation. K-fold cross-validation splits the data into k folds, it then trains and tests the model k times (where, for each iteration, one fold is a hold out fold and the remaning folds are used for training the model). K-fold cross-validation helps to test model performance across different subsets of data where the subsets are sampled without replacement. For many applications of species distribution modeling, it is ideal to use spatial cross-validation where folds are separated in space so to avoid issues of autocorrelation that arise from test and training points being very close to each other. See figure 5. for a visual explanation. Here we will use the R package _spatialsample_. Methods for splitting folds can be dependent on your data and study questions. View the [blockCV paper (Valavi et al. 2021)](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.13107) and the [_spatialsample_](https://spatialsample.tidymodels.org/) rpackage to learn of different ways to split data. Below we will use block clustering because it is quick to implement.</br>
 
 <img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/spatialcv_visualization.png width="700" height="350"></br>
 **Figure 8.** Visualization of spatial partitioning versus random test versus train set. Figure from towards data science ["Spatial CV Using Sickit-learn"](https://towardsdatascience.com/spatial-cross-validation-using-scikit-learn-74cb8ffe0ab9).
@@ -479,24 +479,24 @@ splits_df  <-  st_drop_geometry(splits_df)  #drop  geometry
 #final  data  -  merge  cluster  id  to  final  dataset  for  analysis
 analysis_data  <-  merge(data0, splits_df, by  =  "row_code")
 
-#sanity  check:  check  how  many  data  points  are  in  each  fold
+#sanity  check:  check  how  many  data  points  are  in  each  fold (make sure folds have adequate data in them)
 table(analysis_data$fold)
 
 
-#write  df  to  save  for  later
+#write  dataframe  to  save  for  later
 write.csv(analysis_data, "data/a_chamek_ter_mammals_finalData_Oct22.csv")
 
 ```
 
 &nbsp;  
 
-_Step 16._ Now we train the model on each set of folds and test it on the holdout fold. For each iteration, we tune the randomForest model to optimize model performance. The tuning step can also be used to prevent over-fitting, depending on your dataset and the parameter values you search over. There are different methods for tuning a machine-learning model. Below we use a [hypergrid search](https://afit-r.github.io/random_forests#tune) and select the final parameters based on the combination that yields the best model performance. If you had trouble running _Step 10._ you can download the ["a_chamek_ter_mammals_finalData_Oct22.csv"](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_finalData_Oct22.csv) to use for the next few steps. R code for the following sections can be found in the ["2_random_forest_sdm.R"](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/2_random_forest_sdm.R) </br>
+_Step 16._ Now we train the model on each set of k-1 folds and test it on the holdout fold. For each iteration, we tune the randomForest model to optimize model performance. Depending on your dataset and the parameter values you search over, the tuning step can also be used to prevent over-fitting. There are different methods for tuning a machine-learning model. Below we use a [hypergrid search](https://afit-r.github.io/random_forests#tune) and select the final parameters based on the combination that yields the best model performance. If you had trouble running _Step 10._ you can download the ["a_chamek_ter_mammals_finalData_Oct22.csv"](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_finalData_Oct22.csv) to use for the next few steps. R code for the following sections can be found in the ["2_random_forest_sdm.R"](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/2_random_forest_sdm.R) </br>
 
 ```
 library(ranger)
 
 #------------------------------------------------#
-#reduce dataset to columns of interest           # this is stylistic as you could also specify the covariates in the forumal call below
+#reduce dataset to columns of interest           # this is stylistic as you could also specify the covariates in the formula call below
 #------------------------------------------------#
 analysis_data_v2  <-  data0[  c("presence", "fold", "bio13_precip_wettest_month", "cmi_min",
                                         "mean_forest",  "mean_farming", "diff_forest_formation")]
@@ -509,7 +509,7 @@ analysis_data_v2 <- analysis_data_v2[sample(1:nrow(analysis_data_v2)), ]
 #tune, train, model                  #
 #------------------------------------#
 
-#create  empty  dataframe  to  for  loop  to  store  results    one  row  for  each  fold
+#create  empty  dataframe  for  loop  to  store  results (one  row  for  each  test fold)
 rf_performance  <-  data.frame(model  =  rep("RF", 3),
                                fold_id  =  1:3,
                                auc  =  rep(NA, 3),
@@ -543,7 +543,7 @@ for(i  in  1:3){  #  run  one  iteration  per  fold
     
     hyper_grid  <-  expand.grid(
         mtry =  seq(1, 3, by  =  1),    #the  number  of  variables  to  randomly  sample  as  candidates  at  each  split
-        node_size =  seq(1,4, by  =  1),    #shallow trees
+        node_size =  seq(1,4, by  =  1),    #shallow trees to handle imbalanced data
         sampe_size  =  c(.6, .70, .80),    #the  number  of  samples  to  train  on
         OOB_RMSE =  0
     )
@@ -551,7 +551,7 @@ for(i  in  1:3){  #  run  one  iteration  per  fold
     #tune  model
     for(j  in  1:nrow(hyper_grid)){
         
-        #  train  model
+        #  train  model 
         model  <-  ranger(
             formula  =  presence  ~  .,    
             data  =  train_complete,    
@@ -561,7 +561,7 @@ for(i  in  1:3){  #  run  one  iteration  per  fold
             sample.fraction  =  hyper_grid$sampe_size[j], 
             probability  =  TRUE, 
             replace = TRUE,
-            splitrule = "hellinger",
+            splitrule = "hellinger", #to handle imbalanced data
             seed  =  123
             )
         
@@ -642,12 +642,12 @@ final_model  <-  ranger(
 #### Model interpretation :bar_chart: :chart_with_upwards_trend:
 
 ##### Variable importance
-_Step 18._ There are many ways to calculate variable importance. Here, we will use a intuitive and model agnostic measure of variable importance. In sum, we will calculate change in model performance when a focal variable is randomly permuted, which will tell us the degree to which the variable contributes to model performance and thus accuracy of model predictions. **need to define y axis better**
+_Step 18._ There are many ways to calculate variable importance. Here, we will use an intuitive and model agnostic measure of variable importance. In sum, we will calculate change in model performance when a focal variable is randomly permuted, which will tell us the degree to which the variable contributes to model performance and thus accuracy of model predictions.
 
 
 ```
 #------------------------------------------------------------#
-#variable  importance                                                                                  #
+#variable  importance                                        #
 #------------------------------------------------------------#
 
 #extract  model  results  to  get  permutation  importance
@@ -658,6 +658,7 @@ permutation_importance  <-  data.frame(variable  =  rownames(as.data.frame(final
 ggplot(permutation_importance, aes(x  =  variable, y  =  importance))  +
     geom_bar(stat="identity")  +
     ggtitle("permutation  importance")  +
+    ylab("importance (change in model error)") + 
     coord_flip()  +
     theme_classic()
 
@@ -666,18 +667,18 @@ ggplot(permutation_importance, aes(x  =  variable, y  =  importance))  +
 
 <img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/variable_importance_plot.png width="850" height="650">
 
-**Figure 9.** Permutation variable importance for each covariate in the model.
+**Figure 9.** Permutation variable importance for each covariate in the model. The y-axis is the change in model error when the variable is permuted.
 
 &nbsp;  
 
 ##### Partial dependence plots
-Partial dependence plots (PDPs) depict the relationship between the probability of species occurrence and the variable of interest across a range of values for that variable. At each value of the variable, the model is evaluated for all values of the other covariates. The final model output is the average predicted probability across all model inputs. 
+Partial dependence plots (PDPs) depict the relationship between the probability of species occurrence and the variable of interest across a range of values for that variable. At each value of the variable, the model is evaluated for all values of the other covariates. The final model output is the average predicted probability across all combinations of the other covariates. 
 
 
 
 ```
 #------------------------------------------------------------#
-#pdps                                                                                                                #
+#pdps                                                        #
 #------------------------------------------------------------#
 
 #try plotting a PDP for just one variable
@@ -686,7 +687,7 @@ pdp::partial(final_model, pred.var  =  "mean_forest", prob  =  TRUE, train  =  a
 
 ###now run a for loop to get plotting data for all variables in the model (or in the 'var_names' list
 #list of covariate names to generate pdps for and loop through
-var_names  <-  names(analysis_data_v2[complete.cases(analysis_data_v2),  -c(1, 2)]) #analysis data set exlucing 'presence' and 'fold' column
+var_names  <-  names(analysis_data_v2[complete.cases(analysis_data_v2),  -c(1, 2)]) #analysis dataset exlucing 'presence' and 'fold' column
 
 #dataframe  to  make  partial  dependence  plots
 pd_df  =  data.frame(matrix(vector(), 0, 3, dimnames=list(c(), c('variable', 'value', 'yhat'))),  
@@ -695,7 +696,7 @@ pd_df  =  data.frame(matrix(vector(), 0, 3, dimnames=list(c(), c('variable', 'va
 #loop  through  each  variable
 for  (j  in  1:length(var_names))  { 
     
-    output  <-  as.data.frame(pdp::partial(final_model, pred.var  =  var_names[j], prob  =  TRUE, train  =  analysis_data_v2[complete.cases(analysis_data_v2), -2]))
+    output  <-  as.data.frame(pdp::partial(final_model, pred.var  =  var_names[j], prob  =  TRUE, train  = analysis_data_v2[complete.cases(analysis_data_v2), -2]))
     
     loop_df  <-  data.frame(variable = rep(var_names[j], length(output[[1]])),
                             value  =  output[[1]],
@@ -714,7 +715,7 @@ ggplot(pd_df, aes(x  =  value, y=  yhat))  +
 ```
 <img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/pdp_plot.png>
 
-**Figure 10.** Partial depdence plots for each covariate in the model.
+**Figure 10.** Partial dependence plots for each covariate in the model.
 
 &nbsp;  
 
@@ -732,4 +733,4 @@ code for generating distribution map based on geoTIFFs of prediction variables? 
 ### Challenge questions
 1. How would you add uncertainty to variable importance, functional relationships (pdps), or prediction maps?
 2. How does you model perfromance and interpretation change when you add / remove covariates?
-3. Pick a new focal species to create an SDM. You will have to use the "notThinned" datasets to select a focal species and create background points.
+3. Pick a new focal species to create a SDM. You will have to use the "notThinned" datasets to select a focal species and create background points.
