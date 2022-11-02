@@ -10,9 +10,6 @@
 3. [Random Forest - Machine-learning based SDMs](https://github.com/ckglidden/UPCH-species-distribution-tutorial/edit/main/README.md#3-machine-learning-based-sdms)
 
 
-&nbsp;   
-
-
 ## 1. Species presence and background data :monkey:
 > For this model we are using _Ateles chamek_ (the Peruvian spider moneky) as a focal species and all other terrestrial mammals as background species. The background species help us to understand the difference between the focal species and the average landscape over which mammals are sampled (thus accounting for sampling bias in the occurrence points). Point data was downloaded from GBIF using the ["0_download_gbif_points.R" code](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/0_download_gbif_points.R). To save time we will jump in using the already downloaded dataset as referenced below, but the code will be here for your future reference. 
 
@@ -22,6 +19,8 @@
 &nbsp;  
 
 _Step 1._ Download occurrence dataset from the data folder: [a_chamek_ter_mammals_amazon_thinned_Oct22.csv](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_amazon_thinned_Oct22.csv)
+
+&nbsp;   
 
 #### Uploading point data to GEE
 >Once you have your occurrence data downloaded, upload it to GEE as a csv. Make sure the dataframe has numerical longitude (x) and latitude (y) coordinates (in decimal degrees) as separate columns. Make sure there is a row identifier to match the points to bind multiple datasets after downloading geospatial data. 
