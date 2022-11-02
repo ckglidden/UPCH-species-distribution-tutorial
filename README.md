@@ -56,7 +56,7 @@ _Step 6._ We will build our species distribution model at a 1km^2 resolution. MA
 
 ```
 //call csv of points (make sure it has lat, long, & a row identifier)
-var amazon_mammals = ee.FeatureCollection('users/cglidden/a_chamek_ter_mammals_amazon_thinned_Oct22'); 
+var amazon_mammals = ee.FeatureCollection('users/cglidden/a_chamek_ter_mammals_amazon_thinned_Oct22'); // replace "cglidden" with your username
 
 /////functions to create buffer zone around each occurence point
 function bufferPoints(radius, bounds) {
