@@ -14,7 +14,7 @@
 &nbsp;  
 
 
-### 1. Species presence and background data
+## 1. Species presence and background data
 > For this model we are using _Ateles chamek_ (the Peruvian spider moneky) as a focal species and all other terrestrial mammals as background species. The background species help us to understand the difference between the focal species and the average landscape over which mammals are sampled (thus accounting for sampling bias in the occurrence points). Point data was downloaded from GBIF using the ["0_download_gbif_points.R" code](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/0_download_gbif_points.R). 
 
 ![Figure 1. Distribution of points](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/a_chamek_sdm_point_distribution.png)
@@ -34,7 +34,7 @@ _Step 2._ Upload occurrence dataset as a GEE feature collection.</br>
 &nbsp;  
 &nbsp;  
 
-### 2. Environmental data
+## 2. Environmental data
 > Species distribution models model the probability a species occurs in pixel _x_ given the environmental conditions (covariates) in pixel _x_. Here, we will download land-use / land-cover and climate data to use as environmental covariates in our model. For the purposes of this tutorial, we will run the initial model with a small number of covariates. 
 
 &nbsp;  
@@ -355,7 +355,7 @@ climate <- climate[  c("row_code", "bio13_precip_wettest_month", "cmi_min")]
 amazon_basin_pnts <-  read.csv("data/a_chamek_ter_mammals_amazon_thinned_Oct22.csv")
 
 #---------------------------------------#
-#update label for MAPBIOMAS classes     #
+# update label for MAPBIOMAS classes    #
 #---------------------------------------#
 
 #you can determine the classes included in the data using:
@@ -369,7 +369,7 @@ mapbiomas$class[mapbiomas$class == 14] <- "farming"
 mapbiomas <- mapbiomas[mapbiomas$class != 0, ]
 
 #----------------------------------------------------------#
-#go from wide to long so each class is a unique column     #
+# go from wide to long so each class is a unique column    #
 #----------------------------------------------------------#
 
 mapbiomas_wide <- mapbiomas %>% 
@@ -380,8 +380,8 @@ mapbiomas_wide[is.na(mapbiomas_wide)] <- 0
 
 
 #---------------------------------------------------------#
-#summarize average area per class per point across years  #
-#and difference in area over the study period             #
+# summarize average area per class per point across years #
+# and difference in area over the study period            #
 #---------------------------------------------------------#
 
 mapbiomas_mean_diff <- mapbiomas_wide %>%
@@ -398,7 +398,7 @@ mapbiomas_mean_diff <- mapbiomas_wide %>%
 write.csv(mapbiomas_mean_diff, "data/a_chamek_ter_mammals_lulc_cleaned_Oct2022.csv")
 
 #--------------------------------------------------------------------------------------------------------#
-#merge data frames with response (presence / absence labels), climate covariates, and lulc covariates    #
+# merge data frames with response (presence / absence labels), climate covariates, and lulc covariates   #
 #--------------------------------------------------------------------------------------------------------#
 
 covariates <- left_join(climate, mapbiomas_mean_diff, by = "row_code")
@@ -408,7 +408,7 @@ data0 <- left_join(amazon_basin_pnts, covariates, by = "row_code")
 
 &nbsp;  
 
-### 3. Multicollinearity analysis
+## 3. Multicollinearity analysis
 _Step 14._ Using the code below, we will now clean our covariate data a bit more by removing highly colinear variables. While machine learning can handle multicolinearity when making predictions, removing colinear variables can still be helpful for model interpretation. The correlation value depends on your questions and dataset but we will use a 0.7 correlation cutoff in the code below. We will use a pair-wise analysis but another option is a variable inflation analysis (or you can use both).
 
 ```
@@ -437,7 +437,7 @@ chart.Correlation(data0[7:ncol(data0)],
 &nbsp;  
 
 
-### Spatial cross-validation :white_check_mark:
+## 4. Spatial cross-validation :white_check_mark:
 
 _Step 15._  Next we will split our data into 3 folds (3 subsets) for 3-fold cross validation. It is important to test the perfomance of your model using a hold-out test set. This allows you to evaluate if your model is predicting generazliable patterns, or if it is only learning the traing data (and thus "overfitting"). One way to test out-of-sample model performance is using k-fold cross-validation. K-fold cross-validation splits the data into k folds, it then trains and tests the model k times (where, for each iteration, one fold is a hold out fold and the remaning folds are used for training the model). K-fold cross-validation helps to test model performance across different subsets of data where the subsets are sampled without replacement. For many applications of species distribution modeling, it is ideal to use spatial cross-validation where folds are separated in space so to avoid issues of autocorrelation that arise from test and training points being very close to each other. See figure 5. for a visual explanation. Here we will use the R package _spatialsample_. Methods for splitting folds can be dependent on your data and study questions. View the [blockCV paper (Valavi et al. 2021)](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.13107) and the [_spatialsample_](https://spatialsample.tidymodels.org/) rpackage to learn of different ways to split data. Below we will use block clustering because it is quick to implement.</br>
 
@@ -487,7 +487,7 @@ write.csv(analysis_data, "data/a_chamek_ter_mammals_finalData_Oct22.csv")
 
 &nbsp;  
 
-### 4. Choice of statistical model -- Random Forest :computer:
+## 5. Choice of statistical model -- Random Forest :computer:
 > There are multiple statistical models (e.g., generalized additive models) and machine learning models (e.g., maxent, random forest, boosted regression tree) that can be used for SDMs. You can read more about different SDM modeling methods in [Valavi et al. 2022](https://esajournals.onlinelibrary.wiley.com/doi/full/10.1002/ecm.1486). Here, we will use a random forest model as they typically have high accuracy (as they deal with non-linearity and higher-order interactions well) and are fast to implement. Random forest is a classification algorithm that takes the average of multiple decision trees. You can learn more about random forests by watching [this video](https://www.youtube.com/watch?v=v6VJ2RO66Ag). 
 
 &nbsp;  
@@ -641,7 +641,7 @@ final_model  <-  ranger(
 
 &nbsp;  
 
-### 6. Model interpretation and evaluation :bar_chart: :chart_with_upwards_trend:
+## 6. Model interpretation and evaluation :bar_chart: :chart_with_upwards_trend:
 
 ##### Variable importance
 _Step 18._ There are many ways to calculate variable importance. Here, we will use an intuitive and model agnostic measure of variable importance. In sum, we will calculate change in model performance when a focal variable is randomly permuted, which will tell us the degree to which the variable contributes to model performance and thus accuracy of model predictions.
