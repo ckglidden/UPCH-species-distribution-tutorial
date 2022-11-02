@@ -103,8 +103,8 @@ splits_df  <-  st_drop_geometry(splits_df)  #drop  shapefiles
 #final  data  -  merge  cluster  id  to  final  dataset  for  analysis
 analysis_data  <-  merge(data0, splits_df, by  =  "row_code")
 
-#sanity  check:  check  how  many  data  points  are  in  each  fold
-table(analysis_data$fold)
+#sanity  check:  check  how  many  data  points  are  in  each  fold for each response
+table(analysis_data$fold, analysis_data$presence)
 
 
 #write  df  to  save  for  later
