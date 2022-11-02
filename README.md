@@ -50,7 +50,7 @@ _Step 3._ Explore the [MAPBIOMAS website](https://plataforma.panamazonia.mapbiom
 
 _Step 4._ Identify LULC categories / datasets of interest using the [MAPBIOMAS legend](https://s3.amazonaws.com/amazonia.mapbiomas.org/leyenda/C%C3%B3digo_de_la_Leyenda_-_colecci%C3%B3n_3.pdf) (make sure it is the correct legend for the MAPBIOMAS assett)
 
-_Step 5._ Explore [MAPBIOMAS GEE code](https://github.com/mapbiomas-brazil/user-toolkit). Many of the functions you need to work with MAPBIOMAS data has pre-written code, you just need to adapt it to your dataset.
+_Step 5._ Explore [MAPBIOMAS GEE code](https://github.com/mapbiomas-brazil/user-toolkit). MAPBIOMAS has pre-written code for most of the functions you need for SDMs.
 
 _Step 6._ We will build our species distribution model at a 1km^2 resolution. MAPBIOMAS is available at a finer scale resolution (30m) so it is possible to create the model at a finer spatial resolution. Note: the resolution of all covariates should be equal to the resolution of the coarsest variable (given that the precision of your occurrence point is as or more precise than that resolution). The data we fed into GEE are points. We will create a 1km buffer around each point (step 6) and then calculate area of each land class per grid cell (step 7-10). A GEE script for steps 6-10 can be found [here](https://code.earthengine.google.com/8fc7e788d5971db28c29447100bdb778).
 
