@@ -3,11 +3,11 @@
 ## Species distribution modeling tutorial
 > This github page includes a tutorial of how to model the distribution of _Ateles chamek_ (the Peruvian spider monkey) throughout the Amazon Basin using MAPBIOMAS land-use/land-cover data and CHELSA climate data.
 
-1. [Presence-background species distribution models](https://github.com/ckglidden/UPCH-species-distribution-tutorial/edit/main/README.md#1-presence-background-species-distribution-models)
+1. [Species presence and background data](https://github.com/ckglidden/UPCH-species-distribution-tutorial/edit/main/README.md#1-presence-background-species-distribution-models)
 
-2. [Environmental covariate data - MAPBIOMAS LULC](https://github.com/ckglidden/UPCH-species-distribution-tutorial/edit/main/README.md#2-environmental-covariate-data)
+2. [Environmental data - MAPBIOMAS LULC](https://github.com/ckglidden/UPCH-species-distribution-tutorial/edit/main/README.md#2-environmental-covariate-data)
 
-3. [Machine-learning based SDMs](https://github.com/ckglidden/UPCH-species-distribution-tutorial/edit/main/README.md#3-machine-learning-based-sdms)
+3. [Random Forest - Machine-learning based SDMs](https://github.com/ckglidden/UPCH-species-distribution-tutorial/edit/main/README.md#3-machine-learning-based-sdms)
 
 
 &nbsp;   
