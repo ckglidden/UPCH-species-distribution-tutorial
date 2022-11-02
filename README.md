@@ -10,11 +10,10 @@
 3. [Machine-learning based SDMs](https://github.com/ckglidden/UPCH-species-distribution-tutorial/edit/main/README.md#3-machine-learning-based-sdms)
 
 
-&nbsp;  
-&nbsp;  
+&nbsp;   
 
 
-## 1. Species presence and background data
+## 1. Species presence and background data :monkey:
 > For this model we are using _Ateles chamek_ (the Peruvian spider moneky) as a focal species and all other terrestrial mammals as background species. The background species help us to understand the difference between the focal species and the average landscape over which mammals are sampled (thus accounting for sampling bias in the occurrence points). Point data was downloaded from GBIF using the ["0_download_gbif_points.R" code](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/R_code/0_download_gbif_points.R). 
 
 ![Figure 1. Distribution of points](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/a_chamek_sdm_point_distribution.png)
@@ -30,11 +29,10 @@ _Step 1._ Download occurrence dataset from the data folder: [a_chamek_ter_mammal
 _Step 2._ Upload occurrence dataset as a GEE feature collection.</br>
 <img src=https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/GEE_csv_asset.png width="250" height="380"></br>
 **Figure 2.** Navigation for uploading csv as a feature collection.
-
+ 
 &nbsp;  
-&nbsp;  
 
-## 2. Environmental data
+## 2. Environmental data :deciduous_tree:
 > Species distribution models model the probability a species occurs in pixel _x_ given the environmental conditions (covariates) in pixel _x_. Here, we will download land-use / land-cover and climate data to use as environmental covariates in our model. For the purposes of this tutorial, we will run the initial model with a small number of covariates. 
 
 &nbsp;  
@@ -343,7 +341,7 @@ _Step 13._ Using the data downloaded in step 12 and the code below, we will rela
 library(tidyr); library(dplyr)
 
 #-----------------------------------#
-#read in datasets                   #
+# read in datasets                  #
 #-----------------------------------#
 
 mapbiomas <- read.csv("data/a_chamek_ter_mammals_lulc_Oct2022.csv")
@@ -408,7 +406,7 @@ data0 <- left_join(amazon_basin_pnts, covariates, by = "row_code")
 
 &nbsp;  
 
-## 3. Multicollinearity analysis
+## 3. Multicollinearity analysis :raised_eyebrow: :chart_with_upwards_trend:
 _Step 14._ Using the code below, we will now clean our covariate data a bit more by removing highly colinear variables. While machine learning can handle multicolinearity when making predictions, removing colinear variables can still be helpful for model interpretation. The correlation value depends on your questions and dataset but we will use a 0.7 correlation cutoff in the code below. We will use a pair-wise analysis but another option is a variable inflation analysis (or you can use both).
 
 ```
@@ -448,7 +446,7 @@ _Step 15._  Next we will split our data into 3 folds (3 subsets) for 3-fold cros
 library(spatialsample); library(sf)
 
 #--------------------------------------------#
-#get  fold  id  by  block  clustering      #
+# get  fold  id  by  block  clustering       #
 #--------------------------------------------#
 
 #convert  analysis_data  to  a  spatial  object
@@ -498,7 +496,7 @@ _Step 16._ Now we train the model on each set of k-1 folds and test it on the ho
 library(ranger)
 
 #------------------------------------------------#
-#reduce dataset to columns of interest           # this is stylistic as you could also specify the covariates in the formula call below
+# reduce dataset to columns of interest          # this is stylistic as you could also specify the covariates in the formula call below
 #------------------------------------------------#
 analysis_data_v2  <-  data0[  c("presence", "fold", "bio13_precip_wettest_month", "cmi_min",
                                         "mean_forest",  "mean_farming", "diff_forest_formation")]
@@ -508,7 +506,7 @@ analysis_data_v2 <- analysis_data_v2[sample(1:nrow(analysis_data_v2)), ]
 
 
 #------------------------------------#
-#tune, train, model                  #
+# tune, train, model                 #
 #------------------------------------#
 
 #create  empty  dataframe  for  loop  to  store  results (one  row  for  each  test fold)
@@ -539,7 +537,7 @@ for(i  in  1:3){  #  run  one  iteration  per  fold
     
     
     #-----------------------------------------------#
-    #define  the  grid  to  search  over            #
+    # define  the  grid  to  search  over           #
     #-----------------------------------------------#
     #  the  function  below  creates  a  grid  with  all  combinations  of  parameters
     
@@ -620,7 +618,7 @@ _Step 17._ Now train the final model that will be used for interpretation and pr
 
 ```
 #------------------------------------------------------------#
-#train  final  model                                                                                      #
+# train  final  model                                        #
 #------------------------------------------------------------#
 
 final_model  <-  ranger(
@@ -641,7 +639,7 @@ final_model  <-  ranger(
 
 &nbsp;  
 
-## 6. Model interpretation and evaluation :bar_chart: :chart_with_upwards_trend:
+## 6. Model interpretation and evaluation :bar_chart: :chart_with_downwards_trend:
 
 ##### Variable importance
 _Step 18._ There are many ways to calculate variable importance. Here, we will use an intuitive and model agnostic measure of variable importance. In sum, we will calculate change in model performance when a focal variable is randomly permuted, which will tell us the degree to which the variable contributes to model performance and thus accuracy of model predictions.
@@ -649,7 +647,7 @@ _Step 18._ There are many ways to calculate variable importance. Here, we will u
 
 ```
 #------------------------------------------------------------#
-#variable  importance                                        #
+# variable  importance                                       #
 #------------------------------------------------------------#
 
 #extract  model  results  to  get  permutation  importance
@@ -680,7 +678,7 @@ Partial dependence plots (PDPs) depict the relationship between the probability 
 
 ```
 #------------------------------------------------------------#
-#pdps                                                        #
+# pdps                                                       #
 #------------------------------------------------------------#
 
 #try plotting a PDP for just one variable
