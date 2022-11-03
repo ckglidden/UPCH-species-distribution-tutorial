@@ -51,7 +51,7 @@ _Step 4._ Identify LULC categories / datasets of interest using the [MAPBIOMAS l
 
 _Step 5._ Explore [MAPBIOMAS GEE code](https://github.com/mapbiomas-brazil/user-toolkit). MAPBIOMAS has pre-written code for most of the functions you need for SDMs.
 
-_Step 6._ We will build our species distribution model at a 1km^2 resolution. MAPBIOMAS is available at a finer scale resolution (30m) so it is possible to create the model at a finer spatial resolution. Note: the resolution of all covariates should be equal to the resolution of the coarsest variable (given that the precision of your occurrence point is as or more precise than that resolution). The data we fed into GEE are points. We will create a 1km buffer around each point (step 6) and then calculate area of each land class per grid cell (step 7-10). A GEE script for steps 6-10 can be found [here](https://code.earthengine.google.com/8fc7e788d5971db28c29447100bdb778).
+_Step 6._ We will build our species distribution model at a 1km^2 resolution. MAPBIOMAS is available at a finer scale resolution (30m) so it is possible to create the model at a finer spatial resolution. Note: the resolution of all covariates should be equal to the resolution of the coarsest variable (given that the precision of your occurrence point is as or more precise than that resolution). The data we fed into GEE are points. We will create a 1km buffer around each point (step 6) and then calculate area of each land class per grid cell (step 7-10). A GEE script for steps 6-10 can be found [here](https://code.earthengine.google.com/968c3eb7d67d49c47ca18fe74ce26043).
 
 
 ```
@@ -81,7 +81,7 @@ Map.addLayer(fcVis);
 
 &nbsp;  
 
-_Step 7._ We will now calculate area per each feature (point + buffer) per year in the study period (2001-2020) in the feature collection. _A. chamek_ typically live in lowland forests but are listed as endangered due to habitat loss. For our initial model we will include lulc variables related to forest cover and farming. The MAPBIOMAS code first sets the calculations up by setting a number of parameters / variables including, among other parameters / variables, setting the identifying property of each point as 'attribute', defining territories (the features), the image (MAPBIOMAS collection), classIds (the land-class you want to calculate area for), the name of the export file, and the file to export to. You can follow along with the GEE code below or in the file on [Caroline' GEE code editor, linked here and above](https://code.earthengine.google.com/771c0679c9e616bed66bba01a12460c1). The code below also includes code to print the MAPBIOMAS image to view the structure and to map the first year of MAPBIOMAS data (the first band of the image). 
+_Step 7._ We will now calculate area per each feature (point + buffer) per year in the study period (2001-2020) in the feature collection. _A. chamek_ typically live in lowland forests but are listed as endangered due to habitat loss. For our initial model we will include lulc variables related to forest cover and farming. The MAPBIOMAS code first sets the calculations up by setting a number of parameters / variables including, among other parameters / variables, setting the identifying property of each point as 'attribute', defining territories (the features), the image (MAPBIOMAS collection), classIds (the land-class you want to calculate area for), the name of the export file, and the file to export to. You can follow along with the GEE code below or in the file on [Caroline' GEE code editor, linked here and above](https://code.earthengine.google.com/968c3eb7d67d49c47ca18fe74ce26043). The code below also includes code to print the MAPBIOMAS image to view the structure and to map the first year of MAPBIOMAS data (the first band of the image). 
 
 <img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/mapbiomas_structure.png width="900" height="450"></br>
 **Figure 5.** The print of the MAPBIOMAS image. You will see that each year of LULC data is a band in the image. This is important infomation to know when it comes to deciding how to extract the data you want. 
@@ -144,7 +144,7 @@ var territory = ee.FeatureCollection(pointBuffers);
 
 // LULC mapbiomas image - 36 bands, one image per band, band named "classification_year"
 var mapbiomas = ee.Image(asset).selfMask();
-//print(mapbiomas) print to view image collection
+print(mapbiomas) print to view image collection
 
 var singleBandVis = { //set mapping parameters
   min: 1, //min classId
