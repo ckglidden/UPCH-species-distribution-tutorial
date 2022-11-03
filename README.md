@@ -325,7 +325,7 @@ Export.table.toDrive({
 
 &nbsp;  
 
-_Step 12._ Skip actually running the GEE code for now and download the ["a_chamek_ter_mammals_lulc_Oct22.csv" file](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_lulc_Oct22.csv) and th ["a_chamek_ter_mammals_climate_Oct22.csv" file](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_climate_Oct22.csv) pre-downloaded data from the data folder.
+_Step 12._ Skip actually running the GEE code for now and download the ["a_chamek_ter_mammals_lulc_Oct22.csv" file](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_lulc_Oct22.csv) and the ["a_chamek_ter_mammals_climate_Oct22.csv" file](https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/data/a_chamek_ter_mammals_climate_Oct22.csv) pre-downloaded data from the data folder.
 
 &nbsp;  
 
