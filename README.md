@@ -21,7 +21,7 @@ _Step 1._ Download occurrence dataset from the data folder: [a_chamek_ter_mammal
 #### Uploading point data to GEE
 >Once you have your occurrence data downloaded, upload it to GEE as a csv. Make sure the dataframe has numerical longitude (x) and latitude (y) coordinates (in decimal degrees) as separate columns. Make sure there is a row identifier to match the points to bind multiple datasets after downloading geospatial data. 
 
-_Step 2._ Upload occurrence dataset as a GEE feature collection.</br>
+_Step 2._ Upload occurrence dataset as a GEE feature collection. Make sure to specify which are the "lat" and "lon" columns so GEE knows to take them in as numerics.</br>
 
 &nbsp;   
 
