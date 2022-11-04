@@ -1,7 +1,7 @@
 ####random  forest  species  distribution  models
-library(tidyr);library(dplyr);library(spatialsample);library(sf);library(ranger)
+library(tidyr);library(dplyr);library(spatialsample);library(sf);library(ranger); library(ggplot2)
 
-
+analysis_data <- read.csv("data/a_chamek_ter_mammals_finalData_Oct22.csv")
 
 #------------------------------------------------#
 #run  spatial  cv  to  evaluate  model  performance        #
@@ -159,7 +159,7 @@ ggplot(permutation_importance, aes(x  =  variable, y  =  importance))  +
     geom_bar(stat="identity")  +
     ggtitle("permutation  importance")  +
     coord_flip()  +
-    theme_classic()
+    theme_classic(base_size = 14)
 
 
 
@@ -167,15 +167,22 @@ ggplot(permutation_importance, aes(x  =  variable, y  =  importance))  +
 #pdps                                                                                                                #
 #------------------------------------------------------------#
 
-var_names  <-  names(analysis_data_v2[complete.cases(analysis_data_v2),  -c(1, 2)])
+#try plotting a PDP for just one variable
+pdp::partial(final_model, pred.var  =  "mean_forest", prob  =  TRUE, plot = TRUE, train  =  analysis_data_v2[complete.cases(analysis_data_v2), -2])
+#train = data without NAs & without "fold" column
+
+###now run a for loop to get plotting data for all variables in the model (or in the 'var_names' list
+#list of covariate names to generate pdps for and loop through
+var_names  <-  names(analysis_data_v2[complete.cases(analysis_data_v2),  -c(1, 2)]) #analysis dataset exlucing 'presence' and 'fold' column
 
 #dataframe  to  make  partial  dependence  plots
 pd_df  =  data.frame(matrix(vector(), 0, 3, dimnames=list(c(), c('variable', 'value', 'yhat'))),  
-                                      row.names  =  NULL, stringsAsFactors=F)
+                     row.names  =  NULL, stringsAsFactors=F)
 
-for  (j  in  1:length(var_names))  {  #loop  through  each  variable
+#loop  through  each  variable
+for  (j  in  1:length(var_names))  { 
     
-    output  <-  as.data.frame(pdp::partial(final_model, pred.var  =  var_names[j], prob  =  TRUE, train  =  analysis_data_v2[complete.cases(analysis_data_v2), -2]))
+    output  <-  as.data.frame(pdp::partial(final_model, pred.var  =  var_names[j], prob  =  TRUE, train  = analysis_data_v2[complete.cases(analysis_data_v2), -2]))
     
     loop_df  <-  data.frame(variable = rep(var_names[j], length(output[[1]])),
                             value  =  output[[1]],
@@ -190,7 +197,7 @@ ggplot(pd_df, aes(x  =  value, y=  yhat))  +
     geom_smooth()  +
     ylab("probability")  +
     facet_wrap(~variable, scales  =  "free")  +
-    theme_bw()
+    theme_bw(base_size = 14)
 
 
 
