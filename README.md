@@ -666,7 +666,7 @@ ggplot(permutation_importance, aes(x  =  variable, y  =  importance))  +
 
 ```
 
-<img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/variable_importance_plot.png width="850" height="650">
+<img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/variable_importance_plot.png width="500" height="600">
 
 **Figure 9.** Permutation variable importance for each covariate in the model. The y-axis is the change in model error when the variable is permuted.
 
@@ -683,7 +683,7 @@ Partial dependence plots (PDPs) depict the relationship between the probability 
 #------------------------------------------------------------#
 
 #try plotting a PDP for just one variable
-pdp::partial(final_model, pred.var  =  "mean_forest", prob  =  TRUE, train  =  analysis_data_v2[complete.cases(analysis_data_v2), -2])) 
+pdp::partial(final_model, pred.var  =  "mean_forest", prob  =  TRUE, plot = TRUE, train  =  analysis_data_v2[complete.cases(analysis_data_v2), -2])
 #train = data without NAs & without "fold" column
 
 ###now run a for loop to get plotting data for all variables in the model (or in the 'var_names' list
@@ -692,7 +692,7 @@ var_names  <-  names(analysis_data_v2[complete.cases(analysis_data_v2),  -c(1, 2
 
 #dataframe  to  make  partial  dependence  plots
 pd_df  =  data.frame(matrix(vector(), 0, 3, dimnames=list(c(), c('variable', 'value', 'yhat'))),  
-                                      row.names  =  NULL, stringsAsFactors=F)
+                     row.names  =  NULL, stringsAsFactors=F)
 
 #loop  through  each  variable
 for  (j  in  1:length(var_names))  { 
@@ -712,7 +712,8 @@ ggplot(pd_df, aes(x  =  value, y=  yhat))  +
     geom_smooth()  +
     ylab("probability")  +
     facet_wrap(~variable, scales  =  "free")  +
-    theme_bw()
+    theme_bw(base_size = 14)
+
 ```
 <img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/pdp_plot.png>
 
