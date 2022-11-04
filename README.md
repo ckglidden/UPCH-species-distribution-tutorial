@@ -673,7 +673,7 @@ ggplot(permutation_importance, aes(x  =  variable, y  =  importance))  +
 &nbsp;  
 
 ##### Partial dependence plots
-Partial dependence plots (PDPs) depict the relationship between the probability of species occurrence and the variable of interest across a range of values for that variable. At each value of the variable, the model is evaluated for all values of the other covariates. The final model output is the average predicted probability across all combinations of the other covariates. 
+_Step 19._ Now you will visualize your model results using partial dependence plots. Partial dependence plots (PDPs) depict the relationship between the probability of species occurrence and the variable of interest across a range of values for that variable. At each value of the variable, the model is evaluated for all values of the other covariates. The final model output is the average predicted probability across all combinations of the other covariates. 
 
 
 
@@ -722,9 +722,7 @@ ggplot(pd_df, aes(x  =  value, y=  yhat))  +
 &nbsp;  
 
 ##### Model predictions
-> blurb about how to create predictions and interpretation of predictions
-
-distribution map?
+_Step 20._ Using the code below, you will use the final model to map the distribution of _A. chamek_ across the Amazon Basin. Once you validate your model and are happy with the biological interpration gained from variable importance, you can use the model to map the distribution of the species. To do this, you create a grid of your area of interest (the area that the occurrence points were distributed over) and determine the environmental covariates in each grid cell. You then use your model to predict the probability of vector occurrence within each grid cell and display this data using a map.
 
 ```
 code for generating distribution map based on geoTIFFs of prediction variables? might need to create it for a small area, otherwise files might be too big for github
