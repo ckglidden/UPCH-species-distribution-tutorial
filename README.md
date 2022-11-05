@@ -496,27 +496,14 @@ _Step 16._ Now we train the model on each set of k-1 folds and test it on the ho
 ```
 library(ranger)
 
-#------------------------------------------------#
-# reduce dataset to columns of interest          # this is stylistic as you could also specify the covariates in the formula call below
-#------------------------------------------------#
-analysis_data_v2  <-  data0[  c("presence", "fold", "bio13_precip_wettest_month", "cmi_min",
-                                        "mean_forest",  "mean_farming", "diff_forest_formation")]
-
-#for many ML algorithms  you should make sure your response variables are not grouped in the data-frame (e.g.  all 1s and 0s next to each other)
-analysis_data_v2 <- analysis_data_v2[sample(1:nrow(analysis_data_v2)), ]
-
-
 #------------------------------------#
-# tune, train, model                 #
+#tune, train, model                  #
 #------------------------------------#
 
-#create  empty  dataframe  for  loop  to  store  results (one  row  for  each  test fold)
+#create  empty  dataframe  to  for  loop  to  store  results    one  row  for  each  fold
 rf_performance  <-  data.frame(model  =  rep("RF", 3),
                                fold_id  =  1:3,
                                auc  =  rep(NA, 3),
-                               sensitivity  =  rep(NA, 3),
-                               specificity  =  rep(NA, 3),
-                               oob_error  =  rep(NA, 3),
                                presence  =  rep(NA, 3),    #number  of  presence  points  in  the  fold
                                background  =  rep(NA, 3))  #number  of  bkg  points  in  the  fold
 
@@ -538,13 +525,13 @@ for(i  in  1:3){  #  run  one  iteration  per  fold
     
     
     #-----------------------------------------------#
-    # define  the  grid  to  search  over           #
+    #define  the  grid  to  search  over            #
     #-----------------------------------------------#
     #  the  function  below  creates  a  grid  with  all  combinations  of  parameters
     
     hyper_grid  <-  expand.grid(
         mtry =  seq(1, 3, by  =  1),    #the  number  of  variables  to  randomly  sample  as  candidates  at  each  split
-        node_size =  seq(1,4, by  =  1),    #shallow trees to handle imbalanced data
+        node_size =  seq(1,4, by  =  1),    #shallow trees
         sampe_size  =  c(.6, .70, .80),    #the  number  of  samples  to  train  on
         OOB_RMSE =  0
     )
@@ -552,7 +539,7 @@ for(i  in  1:3){  #  run  one  iteration  per  fold
     #tune  model
     for(j  in  1:nrow(hyper_grid)){
         
-        #  train  model 
+        #  train  model
         model  <-  ranger(
             formula  =  presence  ~  .,    
             data  =  train_complete,    
@@ -562,7 +549,7 @@ for(i  in  1:3){  #  run  one  iteration  per  fold
             sample.fraction  =  hyper_grid$sampe_size[j], 
             probability  =  TRUE, 
             replace = TRUE,
-            splitrule = "hellinger", #to handle imbalanced data
+            splitrule = "hellinger",
             seed  =  123
             )
         
@@ -592,13 +579,6 @@ for(i  in  1:3){  #  run  one  iteration  per  fold
     pred0  <-  predict(train_model, data=test_complete);  pred  <-  pred0$predictions[,1]
     auc  <-  pROC::roc(response=test_complete[,"presence"], predictor=pred, levels=c(0, 1), auc  =  TRUE)
     rf_performance[i, "auc"]  <-  auc$auc
-    best.threshold  <-  pROC::coords(auc, "best", ret  =  "threshold")
-    metrica.format  <-  data.frame(cbind(ifelse(test_complete[,"presence"]==1, 1, 0)),  ifelse(pred  >=  best.threshold[1, 1], 1, 0));  colnames(metrica.format)  <-  c("labels", "predictions");  rownames(metrica.format)  <-  1:dim(metrica.format)[1]
-    sensitivity  <-  metrica::recall(data  =  metrica.format, obs  =  labels, pred  =  predictions)$recall  
-    rf_performance[i, "sensitivity"]  <-  sensitivity  
-    specificity  <-  metrica::specificity(data  =  metrica.format, obs  =  labels, pred  =  predictions)$spec
-    rf_performance[i, "specificity"]  <-  specificity
-    rf_performance[i, "oob_error"]  <-  train_model$prediction.error
     rf_performance[i, "presence"]  <-  nrow(subset(test, presence  ==  1))
     rf_performance[i, "background"]  <-  nrow(subset(test, presence  ==  0))
     
@@ -609,8 +589,11 @@ for(i  in  1:3){  #  run  one  iteration  per  fold
 
 }
 
+#mean auc = 0.71
+mean(rf_performance$auc)
+
+
 ```
-**include model performance table**
 
 &nbsp;  
 
