@@ -1,16 +1,17 @@
 ####random  forest  species  distribution  models
-library(tidyr);library(dplyr);library(spatialsample);library(sf);library(ranger); library(ggplot2)
+
+#install and load packages
+install.packages(c("tidyr", "dplyr", "spatialsample", "sf", "ranger", "ggplot2"))
+library(tidyr);library(dplyr);library(spatialsample);library(sf);library(ranger);library(ggplot2)
 
 analysis_data <- read.csv("data/a_chamek_ter_mammals_finalData_Oct22.csv")
 
-#------------------------------------------------#
-#run  spatial  cv  to  evaluate  model  performance        #
-#------------------------------------------------#
+#-------------------------------------------------------------------------#
+#CHOICE OF STATISTICAL MODEL -- RANDOM FOREST                             #
+#run model using spatial  cv  to  evaluate  model  performance            #
+#-------------------------------------------------------------------------#
 
 #first  reduce  data  down  to  covariates  of  interest  (or  you  could  specify  it  in  the  formula  below)
-# analysis_data_v2  <-  analysis_data[  c("presence", "fold", "bio10_temp_warmest_qt", "bio13_precip_wettest_month", "cmi_min",
-#                                         "mean_forest",  "mean_farming", "mean_urban",
-#                                         "diff_forest_formation")]
 
 analysis_data_v2  <-  analysis_data[  c("presence", "fold", "bio13_precip_wettest_month", "cmi_min",
                                         "mean_forest",  "mean_farming", "diff_forest_formation")]
@@ -147,7 +148,8 @@ final_model  <-  ranger(
     seed  =  123)
 
 #------------------------------------------------------------#
-#variable  importance                                                                                  #
+#MODEL INTERPRETATION AND EVALUATION                         #
+#variable  importance                                        #
 #------------------------------------------------------------#
 
 #extract  model  results  to  get  permutation  importance

@@ -1,7 +1,8 @@
 ###cleaning mapbiomas data for SDM
 
-#load libraries
-library(tidyr); library(dplyr); library(PerformanceAnalytics); library(spatialsample); library(sf)
+#install and load packages
+install.packages(c("tidyr", "dplyr", "PerformanceAnalytics", "spatialsample", "sf", "stats"))
+library(tidyr); library(dplyr); library(PerformanceAnalytics); library(spatialsample); library(sf); library(stats)
 
 #-----------------------------------#
 #read in datasets                   #
@@ -51,6 +52,9 @@ mapbiomas_mean_diff <- mapbiomas_wide %>%
                             #difference over study period per class
                             diff_forest_formation = forest_formation[match(2020, year)] - forest_formation[match(2001, year)])
 
+#remove any incomplete cases that came out of the differencing
+mapbiomas_mean_diff <- mapbiomas_mean_diff[complete.cases(mapbiomas_mean_diff),]
+
 #save dataframe
 write.csv(mapbiomas_mean_diff, "data/a_chamek_ter_mammals_lulc_cleaned_Oct2022.csv")
 
@@ -58,15 +62,17 @@ write.csv(mapbiomas_mean_diff, "data/a_chamek_ter_mammals_lulc_cleaned_Oct2022.c
 #merge data frames with response (presence / absence labels), climate covariates, and lulc covariates    #
 #--------------------------------------------------------------------------------------------------------#
 
-covariates <- left_join(climate, mapbiomas_mean_diff, by = "row_code")
-data0 <- left_join(amazon_basin_pnts, covariates, by = "row_code")
+covariates <- inner_join(climate, mapbiomas_mean_diff, by = "row_code")
+data0 <- inner_join(amazon_basin_pnts, covariates, by = "row_code")
 
-#----------------------------------------------------------#
-#pearsons correlation analysis                             #
-#----------------------------------------------------------#
+#---------------------------------------------------------------#
+#MULTICOLLINEARITY ANALYSIS                                     #
+#pearsons correlation analysis                                  #
+#---------------------------------------------------------------#
 
 # correlation in absolute terms
 corr <- abs(cor(data0[7:ncol(data0)])) 
+corr
 
 #correlation plot with points on lower left of matrix, correlation coeffecients on upper right, and distributions on the diagonal
 chart.Correlation(data0[7:ncol(data0)], 
@@ -75,7 +81,8 @@ chart.Correlation(data0[7:ncol(data0)],
 #nothing with correlation > 0.7
 
 #--------------------------------------------#
-#get  fold  id  by  block  clustering      #
+#SPATIAL CROSS-VALIDATION                    #
+#get  fold  id  by  block  clustering        #
 #--------------------------------------------#
 
 #convert  analysis_data  to  a  spatial  object
@@ -83,7 +90,7 @@ data0_sf  <-  st_as_sf(x  =  data0,
                        coords  =  c("lon", "lat"),
                        crs  =  "+proj=longlat +datum=WGS84 +ellps=WGS84")
 
-#identify  groups  of  5  clusters  using  the  spatialsample  package
+#identify  groups  of  3  clusters  using  the  spatialsample  package
 set.seed(99)  #set  seed  to  get  same  split  each  time
 clusters  <-  spatial_block_cv(data0_sf, 
                                method = "random", n = 30, #method for how blocks are oriented in space & number of blocks
