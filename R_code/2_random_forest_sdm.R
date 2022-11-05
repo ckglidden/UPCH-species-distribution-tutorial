@@ -1,7 +1,6 @@
 ####random  forest  species  distribution  models
 
-#install and load packages
-install.packages(c("tidyr", "dplyr", "spatialsample", "sf", "ranger", "ggplot2"))
+#load packages
 library(tidyr);library(dplyr);library(spatialsample);library(sf);library(ranger);library(ggplot2)
 
 analysis_data <- read.csv("data/a_chamek_ter_mammals_finalData_Oct22.csv")
@@ -27,9 +26,6 @@ analysis_data_v2 <- analysis_data_v2[sample(1:nrow(analysis_data_v2)), ]
 rf_performance  <-  data.frame(model  =  rep("RF", 3),
                                fold_id  =  1:3,
                                auc  =  rep(NA, 3),
-                               sensitivity  =  rep(NA, 3),
-                               specificity  =  rep(NA, 3),
-                               oob_error  =  rep(NA, 3),
                                presence  =  rep(NA, 3),    #number  of  presence  points  in  the  fold
                                background  =  rep(NA, 3))  #number  of  bkg  points  in  the  fold
 
@@ -105,13 +101,6 @@ for(i  in  1:3){  #  run  one  iteration  per  fold
     pred0  <-  predict(train_model, data=test_complete);  pred  <-  pred0$predictions[,1]
     auc  <-  pROC::roc(response=test_complete[,"presence"], predictor=pred, levels=c(0, 1), auc  =  TRUE)
     rf_performance[i, "auc"]  <-  auc$auc
-    best.threshold  <-  pROC::coords(auc, "best", ret  =  "threshold")
-    metrica.format  <-  data.frame(cbind(ifelse(test_complete[,"presence"]==1, 1, 0)),  ifelse(pred  >=  best.threshold[1, 1], 1, 0));  colnames(metrica.format)  <-  c("labels", "predictions");  rownames(metrica.format)  <-  1:dim(metrica.format)[1]
-    sensitivity  <-  metrica::recall(data  =  metrica.format, obs  =  labels, pred  =  predictions)$recall  
-    rf_performance[i, "sensitivity"]  <-  sensitivity  
-    specificity  <-  metrica::specificity(data  =  metrica.format, obs  =  labels, pred  =  predictions)$spec
-    rf_performance[i, "specificity"]  <-  specificity
-    rf_performance[i, "oob_error"]  <-  train_model$prediction.error
     rf_performance[i, "presence"]  <-  nrow(subset(test, presence  ==  1))
     rf_performance[i, "background"]  <-  nrow(subset(test, presence  ==  0))
     
@@ -122,12 +111,8 @@ for(i  in  1:3){  #  run  one  iteration  per  fold
 
 }
 
-#------------------------------------------------------------#
-#calculate  average  out  of  sample  performance           #
-#------------------------------------------------------------#
-
-model_performance  <-  data.frame(metric  =  names(rf_performance)[2:ncol(rf_performance)],  
-                                                                mean_metric  =  colMeans(rf_performance[2:ncol(rf_performance)]))
+#mean auc = 0.71
+mean(rf_performance$auc)
 
 #------------------------------------------------------------#
 #train  final  model                                                                                      #
