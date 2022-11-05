@@ -30,11 +30,11 @@ mapbiomas <- mapbiomas[mapbiomas$class != 0, ]
 #go from wide to long so each class is a unique column     #
 #----------------------------------------------------------#
 
-mapbiomas_wide <- mapbiomas %>% 
-  pivot_wider(names_from = class, values_from = area) 
-
-#change NAs to zero as NA means the land class is not present (so there is 0 area)
-mapbiomas_wide[is.na(mapbiomas_wide)] <- 0
+mapbiomas_wide <- mapbiomas[2:5] %>% 
+  pivot_wider(names_from = class, 
+              values_from = area,
+              values_fn = list(area = sum),
+              values_fill = list(area = 0)) 
 
 
 #---------------------------------------------------------#
