@@ -339,6 +339,7 @@ _Step 13._ Using the data downloaded in step 12 and the code below, we will rela
 
 ```
 #download the github folder and set it to your working directory
+rm(list=ls())
 setwd("~/Desktop/UPCH-species-distribution-tutorial-main/")
 
 #load libraries
