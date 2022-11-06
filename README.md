@@ -338,6 +338,9 @@ R code for the following sections can be found in the ["1_cleaning_data.R"](http
 _Step 13._ Using the data downloaded in step 12 and the code below, we will relabel MAPBIOMAS classes to make it easier to view results. We'll then aggregate LULC data by taking the mean LULC from 2001-2020. Since _A. chamek_ is affected by deforestation we will also look at difference in forest cover between 2001-2020. We will then merge the lulc data with the occurrence data and climate data. The climate data is exported from GEE in an immediately useable form. Note: Given the pace of LULC change, this is a really coarse way of aggregating the data and we likely loose a lot of signal.  
 
 ```
+#download the github folder and set it to your working directory
+setwd("~/Desktop/UPCH-species-distribution-tutorial-main/")
+
 #load libraries
 library(tidyr); library(dplyr)
 
