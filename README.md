@@ -5,7 +5,7 @@
 
 1. Species presence and background data
 
-2. Environmental data - MAPBIOMAS LULC & CHELSA
+2. Environmental data - MAPBIOMAS LULC & CHELSA Climate
 
 3. Machine-learning based SDMs - Random Forest
 
