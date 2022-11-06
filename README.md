@@ -504,6 +504,14 @@ library(ranger)
 #tune, train, model                  #
 #------------------------------------#
 
+#first  reduce  data  down  to  covariates  of  interest  (or  you  could  specify  it  in  the  formula  below)
+
+analysis_data_v2  <-  analysis_data[  c("presence", "fold", "bio13_precip_wettest_month", "cmi_min",
+                                        "mean_forest",  "mean_farming", "diff_forest_formation")]
+
+#for many ML algorithms  you should make sure your response variables are not grouped in the data-frame (i.e.,  all 1s and 0s next to each other)
+analysis_data_v2 <- analysis_data_v2[sample(1:nrow(analysis_data_v2)), ]
+
 #create  empty  dataframe  to  for  loop  to  store  results    one  row  for  each  fold
 rf_performance  <-  data.frame(model  =  rep("RF", 3),
                                fold_id  =  1:3,
@@ -558,7 +566,7 @@ for(i  in  1:3){  #  run  one  iteration  per  fold
             )
         
         #  add  OOB  error  to  grid
-        hyper_grid$OOB_RMSE[i]  <-  sqrt(model$prediction.error)
+        hyper_grid$OOB_RMSE[j]  <-  sqrt(model$prediction.error)
     }
     
     #arrange  the  hypergrid  so  the  lowest  out-of-bag  error  (best  performing  set  of  parameters)  is  in  the  first  row
