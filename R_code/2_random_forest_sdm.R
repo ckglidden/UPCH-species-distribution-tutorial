@@ -76,7 +76,7 @@ for(i  in  1:3){  #  run  one  iteration  per  fold
             )
         
         #  add  OOB  error  to  grid
-        hyper_grid$OOB_RMSE[i]  <-  sqrt(model$prediction.error)
+        hyper_grid$OOB_RMSE[j]  <-  sqrt(model$prediction.error)
     }
     
     #arrange  the  hypergrid  so  the  lowest  out-of-bag  error  (best  performing  set  of  parameters)  is  in  the  first  row
@@ -131,6 +131,11 @@ final_model  <-  ranger(
     splitrule = "hellinger",
     importance  =  'permutation',    #specify  this  to  get  variable  importance  in  the  next  step
     seed  =  123)
+
+#check in-sample auc
+pred0  <-  predict(final_model, data=analysis_data_v2[complete.cases(analysis_data_v2), -2]);  pred  <-  pred0$predictions[,1]
+auc  <-  pROC::roc(response=analysis_data_v2[complete.cases(analysis_data_v2), -2][,"presence"], predictor=pred, levels=c(0, 1), auc  =  TRUE)
+auc$auc
 
 #------------------------------------------------------------#
 #MODEL INTERPRETATION AND EVALUATION                         #
