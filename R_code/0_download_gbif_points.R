@@ -3,7 +3,7 @@ setwd("~/Desktop/UPCH-species-distribution-tutorial-main/")
 
 ##note that folder structure of the github may have changed since writing this code
 #install and load packages
-install.packages(c("sf","rbif", "dplyr", "raster", "ggplot2"))
+#install.packages(c("sf","rbif", "dplyr", "raster", "ggplot2"))
 library(sf); library(rgbif); library(dplyr); library(raster); library(ggplot2)
 
 #-------------------------------------------------------------#
