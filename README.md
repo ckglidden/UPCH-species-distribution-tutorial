@@ -631,6 +631,11 @@ final_model  <-  ranger(
     importance  =  'permutation',    #specify  this  to  get  variable  importance  in  the  next  step
     seed  =  123)
 
+#check in-sample auc
+pred0  <-  predict(final_model, data=analysis_data_v2[complete.cases(analysis_data_v2), -2]);  pred  <-  pred0$predictions[,1]
+auc  <-  pROC::roc(response=analysis_data_v2[complete.cases(analysis_data_v2), -2][,"presence"], predictor=pred, levels=c(0, 1), auc  =  TRUE)
+auc$auc
+
 ``` 
 
 &nbsp;  
