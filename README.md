@@ -754,7 +754,7 @@ rf_sdm_raster <- rasterFromXYZ(rf_tiff_df)
 outfile <- writeRaster(rf_sdm_raster, filename='final_figures/rf_sdm_example_predictions.tif', format="GTiff",options=c("INTERLEAVE=BAND","COMPRESS=LZW"), overwrite=TRUE)
 
 ```
-img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/lulc_correlation.png></br>
+<img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/rf_sdm_example_predictions.tif></br>
 **Figure 11.** Model predictions of species occurrence throughout Madre De Dios, Peru.
 
 &nbsp; 
