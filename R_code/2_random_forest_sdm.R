@@ -132,7 +132,7 @@ final_model  <-  ranger(
     importance  =  'permutation',    #specify  this  to  get  variable  importance  in  the  next  step
     seed  =  123)
 
-#check in-sample auc
+#check in-sample auc - if the in-sample AUC is very high but the out-of-sample AUC is low, then your model is likely overfit
 pred0  <-  predict(final_model, data=analysis_data_v2[complete.cases(analysis_data_v2), -2]);  pred  <-  pred0$predictions[,1]
 auc  <-  pROC::roc(response=analysis_data_v2[complete.cases(analysis_data_v2), -2][,"presence"], predictor=pred, levels=c(0, 1), auc  =  TRUE)
 auc$auc
@@ -194,8 +194,28 @@ ggplot(pd_df, aes(x  =  value, y=  yhat))  +
 
 
 #------------------------------------------------------------#
-#prediction  maps                                                                                          #
+#prediction  maps                                            #                                              #
 #------------------------------------------------------------#
 
+#path for rasters in google link shared on the github README page (you need to request permission to access)
+env_data <- list.files(path="env_data", pattern="tif", all.files=FALSE, full.names=TRUE,recursive=TRUE)
+e <- raster::stack(env_data)
 
+prediction_df <- as.data.frame(rasterToPoints(e)) ##this gets raster value for every grid cell of MDD
+
+#reduce dataset to complete cases
+prediction_df_complete <- prediction_df[complete.cases(prediction_df), ]
+
+#predict probability of species occurrence each 1km grid cell of the area of interest
+predictions <- predict(final_model,
+                       data=prediction_df_complete)
+
+prediction_df_full <- cbind(prediction_df_complete, as.data.frame(predictions$predictions)[,2])
+names(prediction_df_full)[ncol(prediction_df_full)] <- "probability"
+
+#reduce dataset to only the long(x), lat (y), and variable of interest (probability)
+rf_tiff_df <- prediction_df_full[, c("x", "y", "probability")]
+
+rf_sdm_raster <- rasterFromXYZ(rf_tiff_df)
+outfile <- writeRaster(rf_sdm_raster, filename='final_figures/rf_sdm_example_predictions.tif', format="GTiff",options=c("INTERLEAVE=BAND","COMPRESS=LZW"), overwrite=TRUE)
 
