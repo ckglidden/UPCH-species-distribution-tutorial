@@ -194,10 +194,10 @@ ggplot(pd_df, aes(x  =  value, y=  yhat))  +
 
 
 #------------------------------------------------------------#
-#prediction  maps                                            #                                              #
+#prediction  maps                                            #                                              
 #------------------------------------------------------------#
 
-#path for rasters in google link shared on the github README page (you need to request permission to access)
+#path for rasters of each covariate in Madre de Dios (we will just plot MDD for now to reduce computational time and file size)
 env_data <- list.files(path="env_data", pattern="tif", all.files=FALSE, full.names=TRUE,recursive=TRUE)
 e <- raster::stack(env_data)
 
