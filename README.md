@@ -755,7 +755,7 @@ outfile <- writeRaster(rf_sdm_raster, filename='final_figures/rf_sdm_example_pre
 
 ```
 <img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/rf_sdm_example_predictions.png></br>
-**Figure 11.** Model predictions of species occurrence throughout Madre De Dios, Peru.
+**Figure 11.** Model predictions of probability of species occurrence throughout Madre De Dios, Peru.
 
 &nbsp; 
 
