@@ -725,12 +725,39 @@ ggplot(pd_df, aes(x  =  value, y=  yhat))  +
 _Step 20._ Using the code below, you will use the final model to map the distribution of _A. chamek_ across the Amazon Basin. Once you validate your model and are happy with the biological interpration gained from variable importance, you can use the model to map the distribution of the species. To do this, you create a grid of your area of interest (the area that the occurrence points were distributed over) and determine the environmental covariates in each grid cell. You then use your model to predict the probability of vector occurrence within each grid cell and display this data using a map.
 
 ```
-code for generating distribution map based on geoTIFFs of prediction variables? might need to create it for a small area, otherwise files might be too big for github
+#------------------------------------------------------------#
+#prediction  map                                             #                                              
+#------------------------------------------------------------#
+
+#path for rasters of each covariate in Madre de Dios (we will just plot MDD for now to reduce computational time and file size)
+env_data <- list.files(path="env_data", pattern="tif", all.files=FALSE, full.names=TRUE,recursive=TRUE)
+e <- raster::stack(env_data)
+
+prediction_df <- as.data.frame(rasterToPoints(e)) ##this gets raster value for every grid cell of MDD
+
+#reduce dataset to complete cases
+prediction_df_complete <- prediction_df[complete.cases(prediction_df), ]
+
+#predict probability of species occurrence each 1km grid cell of the area of interest
+predictions <- predict(final_model,
+                       data=prediction_df_complete)
+
+prediction_df_full <- cbind(prediction_df_complete, as.data.frame(predictions$predictions)[,2])
+names(prediction_df_full)[ncol(prediction_df_full)] <- "probability"
+
+#reduce dataset to only the long(x), lat (y), and variable of interest (probability)
+rf_tiff_df <- prediction_df_full[, c("x", "y", "probability")]
+
+rf_sdm_raster <- rasterFromXYZ(rf_tiff_df)
+
+#save raster
+outfile <- writeRaster(rf_sdm_raster, filename='final_figures/rf_sdm_example_predictions.tif', format="GTiff",options=c("INTERLEAVE=BAND","COMPRESS=LZW"), overwrite=TRUE)
+
 ```
 
 &nbsp; 
 
 ### Challenge questions
 1. How would you add uncertainty to variable importance, functional relationships (pdps), or prediction maps?
-2. How does you model perfromance and interpretation change when you add / remove covariates?
+2. How does your model perfromance and interpretation change when you add / remove covariates?
 3. Pick a new focal species to create a SDM. You will have to use the "notThinned" datasets to select a focal species and create background points.
