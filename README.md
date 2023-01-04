@@ -722,7 +722,7 @@ ggplot(pd_df, aes(x  =  value, y=  yhat))  +
 &nbsp;  
 
 ##### Model predictions
-_Step 20._ Using the code below, you will use the final model to map the distribution of _A. chamek_ across the Amazon Basin. Once you validate your model and are happy with the biological interpration gained from variable importance, you can use the model to map the distribution of the species. To do this, you create a grid of your area of interest (the area that the occurrence points were distributed over) and determine the environmental covariates in each grid cell. You then use your model to predict the probability of vector occurrence within each grid cell and display this data using a map.
+_Step 20._ Using the code below, you will use the final model to map the distribution of _A. chamek_ across Madre de Dios, Peru (a section of the Amazon Basin). Although our model was trained across the Amazon Basin, we will only plot predictions for Madre de Dios here to decrease computational time for tutorial purposes. Once you validate your model and are happy with the biological interpration gained from variable importance and partial dependence plots, you can use the model to map the distribution of the species. To do this, you create a grid of your area of interest (the area that the occurrence points were distributed over) and determine the environmental covariates in each grid cell. You then use your model to predict the probability of vector occurrence within each grid cell and display this data using a map.
 
 ```
 #------------------------------------------------------------#
@@ -754,6 +754,8 @@ rf_sdm_raster <- rasterFromXYZ(rf_tiff_df)
 outfile <- writeRaster(rf_sdm_raster, filename='final_figures/rf_sdm_example_predictions.tif', format="GTiff",options=c("INTERLEAVE=BAND","COMPRESS=LZW"), overwrite=TRUE)
 
 ```
+img src= https://github.com/ckglidden/UPCH-species-distribution-tutorial/blob/main/final_figures/lulc_correlation.png></br>
+**Figure 11.** Model predictions of species occurrence throughout Madre De Dios, Peru.
 
 &nbsp; 
 
