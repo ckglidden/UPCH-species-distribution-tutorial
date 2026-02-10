@@ -1,5 +1,9 @@
-### Cleaning data for SDM ----------------------------------------
-
+#==============================================================================
+# Species Distribution Modeling: Covariate Preparation & Spatial CV Setup
+#==============================================================================
+# Purpose: Clean and merge land use/land cover (LULC) and climate covariates
+#          extracted from Google Earth Engine, check for multicollinearity,
+#          and create spatial cross-validation folds for SDM modeling
 # Packages
 library(tidyr)
 library(dplyr)
