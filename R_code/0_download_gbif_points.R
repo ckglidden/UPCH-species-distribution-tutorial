@@ -1,223 +1,233 @@
+#==============================================================================
+# Species Distribution Modeling: Data Preparation
+#==============================================================================
+# Purpose: Download GBIF occurrence data for Peruvian mammals, spatially filter
+#          to Amazon Basin, thin occurrence points to reduce spatial bias, and
+#          create presence/background dataset for SDM modeling
+
 #set your working directory
 setwd("~/Desktop/UPCH-species-distribution-tutorial-main/")
 
 ##note that folder structure of the github may have changed since writing this code
 #install and load packages
 #install.packages(c("sf","rbif", "dplyr", "raster", "ggplot2"))
-library(sf); library(rgbif); library(dplyr); library(raster); library(ggplot2)
+library(sf); library(rgbif); library(dplyr); library(purrr); library(ggplot2)
 
 #-------------------------------------------------------------#
 #download gbif data                                           #
 #-------------------------------------------------------------#
 
-#read in IUCN species names for songbird in Peru
-iucn_species <- read_sf("/Users/carolineglidden/Documents/GitHub/iucn_MDD_species/neotropics_terrestrial_mammals") #this shape file was downloaded from ICUN redlist site
-names(iucn_species)[3] <- "scientificName" #needs to match gbif to work
-unique_names <- unique(iucn_species$scientificName) #names to loop through, can also just use this function in the loop
+#read in IUCN species names for mammals in Peru
+iucn_species <- read.csv('data/peru_mammal_list.csv') %>% pull(scientificName)
 
-#create a dataframe with the scientific name & all occ of songbirds
-latlong <- data.frame()
+final_species <- c("Ateles chamek",  # randomly sampling species + focal species for this example bc download is slow
+                   sample(setdiff(iucn_species, "Ateles chamek"), 999))
 
-#for loop to get lat long of each species from GBIF
-for (i in 1:nrow(iucn_species)){
+# Download with rate limiting and progress bar
+latlong <- map_dfr(final_species[1:10], function(species) {
+  Sys.sleep(0.3)  # 300ms delay = ~200 requests/minute (GBIF limit is 300/min)
+  
   tryCatch({
-    b <- data.frame(occ_search(scientificName = unique_names[i])$data)
-    #filter so that only the recorded occurrences are in the dataframe
-    if("decimalLatitude" %in% colnames(b)){
-      c <- subset(b, select=c("scientificName", "decimalLatitude", "decimalLongitude", "year"))
-      #some of the occurrences have weird names, so we just rename that column to their scientific name
-      c[1:nrow(b), 1] <- unique_names[i]
-      latlong <- rbind(latlong, c)
+    result <- occ_search(scientificName = species, 
+                         fields = c("scientificName", "decimalLatitude", 
+                                    "decimalLongitude", "year"),
+                         limit = 1000)
+    
+    if(!is.null(result$data)) {
+      return(result$data)
+    } else {
+      return(NULL)
     }
-  }, error=function(e){})
-}
+    
+  }, error = function(e) {
+    message("Failed: ", species)
+    return(NULL)
+  })
+}, .progress = TRUE)  # shows progress bar
 
-#get rid of all the occurrences with no lat longs and create a csv
-g <- latlong[complete.cases(latlong), ]
+# Remove rows with missing coordinates
+g <- latlong %>% 
+  filter(!is.na(decimalLatitude), !is.na(decimalLongitude))
 
 ######For Amazon specific occurrence points
 ab0 <- read_sf("Amazon_Basin")
-#sf_use_s2(FALSE) # may need to switch off spherical geometry
-ab <- st_union(ab0); plot(ab) # create one figure and plot it to make sure it looks correct
+sf_use_s2(FALSE)
+pnts_sf_end <- st_as_sf(g, coords = c('decimalLongitude', 'decimalLatitude'),
+                        crs = st_crs(ab0))
 
-pnts_sf_end <- st_as_sf(g, coords = c('decimalLongitude', 'decimalLatitude'), crs = st_crs(ab)) #make sure crs is same between points & shape file
+# Just get points inside the basin
+points_inside <- st_filter(pnts_sf_end, ab0)
 
-pnts_sf_end$indicator <- st_within(pnts_sf_end, ab) %>% lengths > 0 #indicator = 1 if points falls in MDD
-
-pnts_ab_end <- subset(pnts_sf_end, indicator == TRUE)
-
-pnts_ab_end <- pnts_ab_end %>%
+pnts_ab_end <- points_inside %>%
   dplyr::mutate(lon = sf::st_coordinates(.)[,1],
                 lat = sf::st_coordinates(.)[,2]) # add lat/lon as unique columns, and drop geometry below (converts data to a regular dataframe)
 
-pnts_ab_end <- st_drop_geometry(pnts_ab_end) #alternatively, you could save this as a shape file and keep the geometry
+pnts_ab <- as.data.frame(st_drop_geometry(pnts_ab_end)) # alternatively, you could save this as a shape file and keep the geometry
+# write.csv(pnts_mdd,"data/XXX_ab.csv", row.names = TRUE) #change XXX with identifiers of species
 
 #######For Madre de Dios specific occurrence points
-#clip occurrence points to only ones that fall in MDD
-# mdd0 <- read_sf("Madre_de_Dios"); 
-# mdd <- st_union(mdd0)
-# # 
-# pnts_sf <- st_as_sf(g, coords = c('decimalLongitude', 'decimalLatitude'), crs = st_crs(mdd))
-# pnts_sf$indicator <- st_within(pnts_sf, mdd) %>% lengths > 0 #indicator = if points falls in MDD
-#   
-# pnts_mdd <- subset(pnts_sf, indicator == TRUE)
+# Clip occurrence points to only ones that fall in MDD
+# mdd0 <- read_sf("Madre_de_Dios")
+# sf_use_s2(FALSE)
+# 
+# pnts_sf <- st_as_sf(g, coords = c('decimalLongitude', 'decimalLatitude'), 
+#                     crs = st_crs(mdd0))
+# 
+# pnts_mdd <- st_filter(pnts_sf, mdd0)
 # 
 # pnts_mdd <- pnts_mdd %>%
 #   dplyr::mutate(lon = sf::st_coordinates(.)[,1],
 #                 lat = sf::st_coordinates(.)[,2]) # add lat/lon as unique columns, and drop geometry below (converts data to a regular dataframe)
 # 
-# pnts_mdd <- st_drop_geometry(pnts_mdd) 
+# pnts_mdd <- st_drop_geometry(pnts_mdd)
 # 
 # write.csv(pnts_mdd,"data/XXX_mdd.csv", row.names = TRUE) #change XXX with identifiers of species
 
-#-------------------------------------------------------------#
-#add invasive species                                         #
-#-------------------------------------------------------------#
+#----------------------------------------------------------------------------------------------------------------------#
+# Visually check distribution of each species to choose focal species / inspect background points   - can skip this    #
+#----------------------------------------------------------------------------------------------------------------------#
+# Usually you already know your focal species; this step is mainly for exploring candidate species
+# and understanding how presence points compare to the available background.
+# First, subset points to 2001–2020 to align with MAPBIOMAS availability.
 
-#the above list of IUCN species only included endemic species in the Amazon, we can use thist paper to add points from invasive species
-#https://esajournals.onlinelibrary.wiley.com/doi/epdf/10.1002/ecy.3115
-#you could also use the paper to generate a list of species and download points off of gbif
-
-alien_species <- read.csv("data/NEOTROPICAL_ALIEN_MAMMALS_OCCURENCE_v1_0.csv")
-alien_species <- alien_species[,c("LONG_X", "LAT_Y", "SPECIES", "RECORD_YEAR")] #subset to columns of interest
-names(alien_species) <- c("lon", "lat", "scientificName", "year") #name to match endemic data
-alien_species <- alien_species[complete.cases(alien_species), ] #only include pnts with all data
-
-pnts_sf_inv <- st_as_sf(alien_species, coords = c('lon', 'lat'), crs = st_crs(ab)) #make sure crs is same between points & shape file
-
-pnts_sf_inv$indicator <- st_within(pnts_sf_inv, ab) %>% lengths > 0 #indicator = 1 if points falls in MDD
-
-pnts_ab_inv <- subset(pnts_sf_inv, indicator == TRUE)
-
-pnts_ab_inv <- pnts_ab_inv %>%
-  dplyr::mutate(lon = sf::st_coordinates(.)[,1],
-                lat = sf::st_coordinates(.)[,2]) # add lat/lon as unique columns, and drop geometry below (converts data to a regular dataframe)
-
-pnts_ab_inv <- st_drop_geometry(pnts_ab_inv) #alternatively, you could save this as a shape file and keep the geometry
-
-pnts_ab <- rbind(pnts_ab_end, pnts_ab_inv) #could add another indicator here distinguishing invasive from endemic
-write.csv(pnts_ab,"data/ter_mammals_amazon_notThinned_Oct22.csv", row.names = TRUE) #save output with all datapoints (pre-thinning)
-
-
-#--------------------------------------------------------------------------------------------------------------#
-#visually check distribution of each species to decide focal species / look at background points               #
-#--------------------------------------------------------------------------------------------------------------#
-#usually you know your focal species, so this step is just for the purpose of trying out different models for different focal species
-#let's first subset the data to between 2010 - 2020, so the points occur within the dates that MAPBIOMAS has available
-
-#also, we will take average land-use / land-cover, a long-term average is coarser resolution than short term -- the short (er) time period might retain more signal
+pnts_ab <- read.csv("data/ter_mammals_amazon_notThinned_Oct22.csv") ## READ IN DATA TO OUTLINE THINNING STEPS
 
 pnts_ab <- subset(pnts_ab, year > 2000 & year < 2021)
 
-# Remove plot axis
-library(ggplot2)
-
-#subset species with a high number of occ points, then look at distribution
+# Subset species with a high number of occurrence points, then inspect distributions
 pts_per_species <- as.data.frame(table(pnts_ab$scientificName))
-quantile(pts_per_species$Freq, prob = 0.75) #47 points
-plot_species <- subset(pts_per_species, Freq > 47); names <- as.vector(plot_species$Var1)
+quantile(pts_per_species$Freq, prob = 0.75) # 47 points
+plot_species <- subset(pts_per_species, Freq > 47)
+names <- as.vector(plot_species$Var1)
 
-# Plot each species - slow process but still useful to visualize data
+# Plot each species (slow but useful for visual checks)
 ggplot() +
-  geom_sf(data=ab, color="#2D3E50", fill="lightgrey", size=.15, alpha = 0.5, show.legend = FALSE) +
-  geom_point(data =  subset(pnts_ab, scientificName != names[1]),
-             aes(x = lon, y = lat), color = "grey", alpha = 0.5) + #plot potential bkg points
-  geom_point(data = subset(pnts_ab, scientificName == names[1]),
-             aes(x = lon, y = lat), color = "blue", alpha = 0.5) + #plot focal species
+  geom_sf(data = ab0, color = "#2D3E50", fill = "lightgrey", size = .15, alpha = 0.5, show.legend = FALSE) +
+  geom_point(
+    data = subset(pnts_ab, scientificName != names[1]),
+    aes(x = lon, y = lat), color = "grey", alpha = 0.5
+  ) + # potential background points
+  geom_point(
+    data = subset(pnts_ab, scientificName == names[1]),
+    aes(x = lon, y = lat), color = "blue", alpha = 0.5
+  ) + # focal species
   theme_minimal()
 
-
-#candidate species for amazon terrestrial mammals (enough presence points that do not completely overlap with background)
-#Ateles chamek - 87 unique points (endangered, Peruvian spider monkey)
-
+# Candidate species for Amazon terrestrial mammals (enough presence points that do not completely overlap with background)
+# Ateles chamek - 87 unique points (endangered, Peruvian spider monkey)
 
 #-------------------------------------------------------------#
-#double check how many unique points in a 1000m raster         #
+# Double check how many unique points per 1000 m raster cell   #
 #-------------------------------------------------------------#
 
-#make raster with 1000m sq grid cells
-st_bbox(ab) #get limits to put in raster
-r <- raster(xmn = -79.699771, xmx = -44.491086, ymn = -20.493752, ymx = 8.663513, res = 0.0083)
+st_bbox(ab0) # get limits to set raster extent
+r <- raster(
+  xmn = -79.699771, xmx = -44.491086,
+  ymn = -20.493752, ymx = 8.663513,
+  res = 0.0083
+)
 
-#one point per grid cell
-s <- dismo::gridSample(pnts_ab[pnts_ab$scientificName == "Ateles chamek", c("lon", "lat")], r, n=1) #87 obs for focal species
+# One point per grid cell
+s  <- dismo::gridSample(
+  pnts_ab[pnts_ab$scientificName == "Ateles chamek (Humboldt, 1812)", c("lon", "lat")],
+  r, n = 1
+) # 87 obs for focal species
 
-s0 <- dismo::gridSample(pnts_ab[pnts_ab$scientificName != "Ateles chamek", c("lon", "lat")], r, n=1) #6914 obs for background species
+s0 <- dismo::gridSample(
+  pnts_ab[pnts_ab$scientificName != "Ateles chamek (Humboldt, 1812)", c("lon", "lat")],
+  r, n = 1
+) # 6914 obs for background species
 
 #-------------------------------------------------------------#
-#Create background mask using probability sampling            #
+# Create background mask using probability sampling            #
 #-------------------------------------------------------------#
 
-background <- pnts_ab[pnts_ab$scientificName != "Ateles chamek", ] #exclude focal species
-
-bg_species_list <- unique(background$scientificName)
-
+background <- pnts_ab[pnts_ab$scientificName != "Ateles chamek", ] # exclude focal species
 
 #-----------------------------------------------------#
-# Extract number of per grid cell                     #
+# Extract number per grid cell                         #
 #-----------------------------------------------------#
 
-bg_points <- background %>% dplyr::select(c(lon, lat)) %>%
+bg_points <- background %>%
+  dplyr::select(lon, lat) %>%
   as.matrix()
 
-bg_longlat <- cellFromXY(r, bg_points) %>% as.data.frame() %>%
+bg_longlat <- cellFromXY(r, bg_points) %>%
+  as.data.frame() %>%
   cbind(background$year, background$scientificName) %>%
-  mutate(count = 1) %>% setNames(c("cell","year", "scientificName","count")) %>%
-  group_by(cell) %>% dplyr::summarize(count = sum(count),
-                                      scientificName = scientificName,
-                                      max_year = max(year),
-                                      avg_year = mean(year)) %>%
+  mutate(count = 1) %>%
+  setNames(c("cell", "year", "scientificName", "count")) %>%
+  group_by(cell) %>%
+  dplyr::summarize(
+    count = sum(count),
+    scientificName = scientificName,
+    max_year = max(year),
+    avg_year = mean(year)
+  ) %>%
   arrange(desc(count)) %>%
-  mutate(lon = xFromCell(r, cell),  # Acquire longitude (x) and latitude (y) from cell centroids
-         lat = yFromCell(r, cell)) %>%
-  dplyr::select(-cell) %>% # Cell number is now obsolete, since will be working from (x,y) as an sf object
-  filter(!is.na(lon) & !is.na(lat)) # Remove the NA locations
+  mutate(
+    lon = xFromCell(r, cell),
+    lat = yFromCell(r, cell)
+  ) %>%
+  dplyr::select(-cell) %>%
+  filter(!is.na(lon) & !is.na(lat))
 
-bg_mask_sf <- st_as_sf(bg_longlat, coords = c("lon","lat"),
-                       agr = "constant", remove = FALSE, crs = 4326)
+bg_mask_sf <- st_as_sf(
+  bg_longlat,
+  coords = c("lon", "lat"),
+  agr = "constant",
+  remove = FALSE,
+  crs = 4326
+)
 
-# Random sample bg without replacement from weighted bias mask at (1.5x occ) multiplier
+# Randomly sample background points without replacement, weighted by sampling intensity
 set.seed(99)
-multiplier <- 3
+multiplier <- 2
 
 bg_mask_weights <- bg_mask_sf %>%
-  mutate(weight = count/sum(count))
+  mutate(weight = count / sum(count))
 
-bg_mask_df <- bg_mask_sf[sample(nrow(bg_mask_weights),
-                                size = multiplier * nrow(s), # s is from earlier code chunk, # of occ points
-                                replace = FALSE,
-                                prob = bg_mask_weights$weight),]
+bg_mask_df <- bg_mask_sf[
+  sample(
+    nrow(bg_mask_weights),
+    size = multiplier * nrow(s),
+    replace = FALSE,
+    prob = bg_mask_weights$weight
+  ),
+]
 
-#make bkg dataset match presence
+# Format background dataset
 bg_mask_df <- st_drop_geometry(bg_mask_df)
-names(bg_mask_df)[c(4)] <- c("year"); bg_mask_df <- bg_mask_df[, c("scientificName", "year", "lon", "lat")]
-#make sure bkg points are labeled
+names(bg_mask_df)[c(4)] <- c("year")
+bg_mask_df <- bg_mask_df[, c("scientificName", "year", "lon", "lat")]
 bg_mask_df$presence <- 0
 
-#subset presence points to thin set, make sure it is lableled
-occ_points <- pnts_ab[row.names(s), c("scientificName", "year", "lon", "lat")]; occ_points$presence <- 1 
+# Format presence points
+occ_points <- pnts_ab[row.names(s), c("scientificName", "year", "lon", "lat")]
+occ_points$presence <- 1
 
-#final passerine occ set
+# Final presence/background dataset
 final_pass <- rbind(occ_points, bg_mask_df)
 
-#add in row identifier for GEE
+# Add row identifier for GEE
 final_pass$row_code <- seq(1, nrow(final_pass), by = 1)
 write.csv(final_pass, "data/a_chamek_ter_mammals_amazon_thinned_Oct22.csv")
 
 #-------------------------------------------------------------#
-#final figure to visualize distribution of points             #
+# Final figure to visualize distribution of points             #
 #-------------------------------------------------------------#
 
-
-# Plot each species
 point_distribution <- ggplot() +
-  geom_sf(data=ab, color="#2D3E50", fill="lightgrey", alpha = 0.5, size=.15, show.legend = FALSE) +
-  geom_jitter(data =  subset(final_pass, scientificName != "Ateles chamek"),
-             aes(x = lon, y = lat), color = "darkgrey", alpha = 0.75) + #plot potential bkg points
-  geom_jitter(data = subset(final_pass, scientificName == "Ateles chamek"),
-             aes(x = lon, y = lat), color = "blue", alpha = 0.5) + #plot focal species
+  geom_sf(data = ab, color = "#2D3E50", fill = "lightgrey", alpha = 0.5, size = .15, show.legend = FALSE) +
+  geom_jitter(
+    data = subset(final_pass, scientificName != "Ateles chamek"),
+    aes(x = lon, y = lat), color = "darkgrey", alpha = 0.75
+  ) +
+  geom_jitter(
+    data = subset(final_pass, scientificName == "Ateles chamek"),
+    aes(x = lon, y = lat), color = "blue", alpha = 0.5
+  ) +
   theme_minimal()
 
-
-ggsave("final_figures/a_chamek_sdm_point_distribution.png", point_distribution, dpi = 300)
-
+ggsave("final_figures/a_chamek_sdm_point_distribution.png",
+       point_distribution, dpi = 300)
